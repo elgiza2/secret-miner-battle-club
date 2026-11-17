@@ -279,4 +279,4 @@
 .tg-app { --zro-top-min: 76px; }
 
 /* TON Connect wallet picker must sit above the bottom tab bar. */
-#tc-widget-root { position: relative; z-index: 9999; }
+#tc-widget-root, #tc-widget-root > * { position: relative; z-index: 2147483000 !important; }
