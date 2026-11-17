@@ -33,3 +33,4 @@ use the editor.
 - ZRO game rules (energy, roll cost, regen, tile rewards, path layout) live only in src/lib/zro-board.ts as pure functions with tests, so UI and a future server can share them.
 - All ZRO images are imported through src/lib/zro-assets.ts so pages never reference image files directly.
 - Board tiles are CSS-transformed squares (rotateX/rotateZ) drawn by the `tile*` utilities in styles.css; z-order is by tile index so nearer tiles overlap farther ones.
+- TON wallet connect is loaded lazily via src/hooks/use-ton-wallet.ts (browser-only lib); games come from the public GameMonetize feed fetched client-side.
