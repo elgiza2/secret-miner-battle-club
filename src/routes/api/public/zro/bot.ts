@@ -29,7 +29,7 @@ function welcome(name: string, fancy: boolean, lang: Lang, tg: number) {
     `${e("star", "⭐️")} <b>${c.l2}</b>\n` +
     `${e("wallet", "👛")} <b>${c.l3}</b>`;
   const btn = (b: Record<string, unknown>, icon: string) => (fancy ? { ...b, icon_custom_emoji_id: icon } : b);
-  const share = `https://t.me/share/url?url=${encodeURIComponent(`https://t.me/zroeobot?start=ref_${tg}`)}`;
+  const share = `https://t.me/share/url?url=${encodeURIComponent(`https://t.me/zroeobot?startapp=ref_${tg}`)}`;
   const reply_markup = {
     inline_keyboard: [
       [btn({ text: c.play, web_app: { url: APP_URL }, style: "success" }, E.rocket)],

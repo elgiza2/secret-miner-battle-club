@@ -40,7 +40,7 @@ function DrawInvite() {
   const tg = inv.data?.tg;
   const share = () => {
     if (!tg) return;
-    const url = `https://t.me/share/url?url=${encodeURIComponent(`https://t.me/zroeobot?start=ref_${tg}`)}`;
+    const url = `https://t.me/share/url?url=${encodeURIComponent(`https://t.me/zroeobot?startapp=ref_${tg}`)}`;
     const w = (window as any).Telegram?.WebApp;
     if (w?.openTelegramLink) w.openTelegramLink(url); else window.open(url, "_blank");
   };
@@ -112,7 +112,7 @@ function RewardsPage() {
 
       <Section title="سحب الحظ"><LuckyDraw /></Section>
 
-      <InviteCard link={`https://t.me/zroeobot?start=ref_${inv.data?.tg ?? (typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id ?? "" : "")}`} count={inv.data?.count ?? 0} />
+      <InviteCard link={`https://t.me/zroeobot?startapp=ref_${inv.data?.tg ?? (typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id ?? "" : "")}`} count={inv.data?.count ?? 0} />
 
       <Section title="المهام">
         <div className="surface flex flex-col divide-y divide-border rounded-[24px] px-3">
