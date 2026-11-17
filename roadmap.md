@@ -39,5 +39,4 @@
 - [ ] Season page (الموسم)
 - [ ] Games page (ألعاب)
 - [ ] Store page (المتجر)
-- [ ] Quick actions (اجمع، سلسلة، هدايا، عجلة) — waiting for their designs
 - [ ] Save ZRO progress on a server instead of the device (needs decision)

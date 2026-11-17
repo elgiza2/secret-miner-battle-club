@@ -3,12 +3,12 @@ import { animate, motion, useMotionValue } from "framer-motion";
 import { tileColumn, tileKind, type TileKind } from "@/lib/zro-board";
 import { TILE_ICONS, DECOR, PAWN } from "@/lib/zro-assets";
 
-// Board geometry (CSS px). Tiles are 84x48 diamonds; neighbours step 52px
-// sideways and 31px up, which leaves the small gaps seen between tiles.
-const STEP_X = 52;
-const STEP_Y = 31;
-const BOTTOM_PAD = 250; // room for the roll button + bottom bar
-const TOP_PAD = 360;
+// Board geometry (CSS px). Tiles are 66x38 diamonds; neighbours step 41px
+// sideways and 24px up, which leaves the small gaps seen between tiles.
+const STEP_X = 41;
+const STEP_Y = 24;
+const BOTTOM_PAD = 190; // room for the roll button + bottom bar
+const TOP_PAD = 260;
 const AHEAD = 70; // how many tiles to render past the pawn
 const BEHIND = 14;
 
@@ -61,7 +61,7 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
         scrollToTile(i + 1, true);
         await Promise.all([
           animate(px, [x0, (x0 + x1) / 2, x1], { duration: 0.32, ease: "easeInOut" }),
-          animate(py, [y0, Math.min(y0, y1) - 30, y1], { duration: 0.32, ease: "easeOut" }),
+          animate(py, [y0, Math.min(y0, y1) - 22, y1], { duration: 0.32, ease: "easeOut" }),
         ]);
         setVisualPos(i + 1);
       }
@@ -78,21 +78,22 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
 
   // Side decorations every 24 tiles, alternating sides like the reference.
   const decor = useMemo(() => {
-    const out: { key: string; src: string; x: number; y: number; size: number; delay: number }[] = [];
+    const out: { key: string; src: string; x: number; y: number; size: number }[] = [];
     for (let base = Math.floor(start / 24) * 24; base < count; base += 24) {
       DECOR.forEach((d, k) => {
         const i = base + d.at;
         if (i < start || i >= count) return;
         const x = d.side === "left" ? d.inset : width - d.inset - d.size;
-        out.push({ key: `${base}-${k}`, src: d.src, x, y: tileY(i) - d.size / 2, size: d.size, delay: k * 0.8 });
+        out.push({ key: `${base}-${k}`, src: d.src, x, y: tileY(i) - d.size / 2, size: d.size });
       });
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [start, count, width, height]);
 
+  // The board is moved only by the game (scrollTo); players can't drag it.
   return (
-    <div ref={scrollRef} className="no-scrollbar fixed inset-0 overflow-y-auto overflow-x-hidden">
+    <div ref={scrollRef} className="no-scrollbar fixed inset-0 touch-none select-none overflow-hidden">
       <div className="relative mx-auto" style={{ width, height }}>
         {decor.map((d) => (
           <img
@@ -100,8 +101,8 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
             src={d.src}
             alt=""
             aria-hidden
-            className="animate-float-soft pointer-events-none absolute"
-            style={{ left: d.x, top: d.y, width: d.size, height: d.size, animationDelay: `${d.delay}s`, zIndex: 1 }}
+            className="pointer-events-none absolute max-w-none"
+            style={{ left: d.x, top: d.y, width: d.size, height: d.size, zIndex: 1 }}
           />
         ))}
 
@@ -112,7 +113,7 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
             <div key={t.i}>
               <div
                 className={`tile ${t.kind === "box" ? "tile-special" : ""}`}
-                style={{ left: t.x - 42, top: t.y - 24, zIndex: z }}
+                style={{ left: t.x - 33, top: t.y - 19, zIndex: z }}
               >
                 <div className="tile-face tile-side" />
                 <div className="tile-face tile-top" />
@@ -121,14 +122,13 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
                 <img
                   src={icon.src}
                   alt={icon.alt}
-                  className="animate-bob pointer-events-none absolute"
+                  className="tile-item pointer-events-none absolute max-w-none"
                   style={{
                     left: t.x,
                     top: t.y + icon.lift,
                     width: icon.size,
                     height: icon.size,
                     zIndex: z + 1,
-                    animationDelay: `${(t.i % 5) * 0.3}s`,
                   }}
                 />
               )}
@@ -143,10 +143,10 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
           <img
             src={PAWN}
             alt="قطعتك"
-            width={50}
-            height={50}
+            width={42}
+            height={42}
             className="absolute max-w-none"
-            style={{ width: 54, height: 54, left: -27, top: -46, filter: "drop-shadow(0 6px 6px oklch(0.1 0.1 270 / 0.6))" }}
+            style={{ width: 42, height: 42, left: -21, top: -36, filter: "drop-shadow(0 6px 6px oklch(0.1 0.1 270 / 0.6))" }}
           />
         </motion.div>
       </div>

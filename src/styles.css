@@ -105,6 +105,7 @@
     background-attachment: fixed;
     font-family: var(--font-body);
     overflow-x: hidden;
+    overscroll-behavior: none;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -166,8 +167,8 @@
 /* ---------- Isometric tiles ---------- */
 @utility tile {
   position: absolute;
-  width: 84px;
-  height: 48px;
+  width: 66px;
+  height: 38px;
   filter: var(--shadow-tile);
   pointer-events: none;
 }
@@ -175,11 +176,11 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 60px;
-  height: 60px;
-  margin-left: -30px;
-  margin-top: -30px;
-  border-radius: 13px;
+  width: 47px;
+  height: 47px;
+  margin-left: -23.5px;
+  margin-top: -23.5px;
+  border-radius: 10px;
 }
 @utility tile-top {
   transform: rotateX(56deg) rotateZ(45deg);
@@ -187,7 +188,7 @@
   box-shadow: inset 0 0 0 1.5px var(--tile-edge);
 }
 @utility tile-side {
-  transform: translateY(8px) rotateX(56deg) rotateZ(45deg);
+  transform: translateY(6px) rotateX(56deg) rotateZ(45deg);
   background: var(--tile-side);
 }
 @utility tile-special {
@@ -198,14 +199,6 @@
 }
 
 /* ---------- Motion ---------- */
-@keyframes bob {
-  0%, 100% { transform: translate(-50%, -100%) translateY(0); }
-  50% { transform: translate(-50%, -100%) translateY(-4px); }
-}
-@keyframes float-soft {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(2deg); }
-}
 @keyframes reward-rise {
   0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
   20% { opacity: 1; transform: translate(-50%, -14px) scale(1.05); }
@@ -219,8 +212,8 @@
   75% { transform: rotate(-8deg) scale(1.03); }
   100% { transform: rotate(0deg) scale(1); }
 }
-@utility animate-bob { animation: bob 2.6s ease-in-out infinite; }
-@utility animate-float-soft { animation: float-soft 5s ease-in-out infinite; }
+/* Item standing on a tile: its bottom-centre sits on the given point. */
+@utility tile-item { transform: translate(-50%, -100%); }
 @utility animate-reward-rise { animation: reward-rise 1.4s ease-out forwards; }
 @utility animate-dice-shake { animation: dice-shake 0.7s ease-in-out infinite; }
 
