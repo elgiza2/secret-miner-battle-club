@@ -5125,6 +5125,27 @@ export type Database = {
           },
         ]
       }
+      zro_admins: {
+        Row: {
+          created_at: string
+          role: string
+          tg_id: number
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          role?: string
+          tg_id: number
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          role?: string
+          tg_id?: number
+          username?: string | null
+        }
+        Relationships: []
+      }
       zro_draw_entries: {
         Row: {
           created_at: string

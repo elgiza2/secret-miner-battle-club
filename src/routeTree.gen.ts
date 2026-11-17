@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R101RouteImport } from './routes/101'
 import { Route as GamesRouteImport } from './routes/games'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as SeasonRouteImport } from './routes/season'
@@ -22,6 +23,11 @@ import { Route as ApiPublicZroBotRouteImport } from './routes/api/public/zro/bot
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R101Route = R101RouteImport.update({
+  id: '/101',
+  path: '/101',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesRoute = GamesRouteImport.update({
@@ -67,6 +73,7 @@ const ApiPublicZroBotRoute = ApiPublicZroBotRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/101': typeof R101Route
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/101': typeof R101Route
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/101': typeof R101Route
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/101'
     | '/games'
     | '/rewards'
     | '/season'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/101'
     | '/games'
     | '/rewards'
     | '/season'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/101'
     | '/games'
     | '/rewards'
     | '/season'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R101Route: typeof R101Route
   GamesRoute: typeof GamesRoute
   RewardsRoute: typeof RewardsRoute
   SeasonRoute: typeof SeasonRoute
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/101': {
+      id: '/101'
+      path: '/101'
+      fullPath: '/101'
+      preLoaderRoute: typeof R101RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games': {
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R101Route: R101Route,
   GamesRoute: GamesRoute,
   RewardsRoute: RewardsRoute,
   SeasonRoute: SeasonRoute,

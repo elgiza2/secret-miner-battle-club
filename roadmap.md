@@ -73,3 +73,4 @@
 - [ ] Fix payments across app
 - [ ] Admin panel /101 (@eigiza @torker): stats, payment notifications, tasks CRUD, task-only admins
 - [ ] 15 days of community posts (image+text), send sample to @eigiza (needs community link + @eigiza must /start bot)
+- [ ] Binance ZRO link in wallet

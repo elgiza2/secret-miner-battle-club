@@ -19,7 +19,7 @@ async function hmac(key: BufferSource, msg: string) {
   return new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(msg)));
 }
 
-async function verifyUser(initData: string): Promise<{ user: TgUser; ref: number | null }> {
+export async function verifyUser(initData: string): Promise<{ user: TgUser; ref: number | null }> {
   const token = process.env["ZRO_BOT_TOKEN"];
   if (!initData) {
     // Browser preview only (outside Telegram): a fixed test player. Never in the published app.
@@ -42,7 +42,7 @@ async function verifyUser(initData: string): Promise<{ user: TgUser; ref: number
   return { user, ref: ref && ref !== user.id ? ref : null };
 }
 
-async function db() {
+export async function db() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
@@ -60,6 +60,10 @@ async function loadUser(initData: string) {
     }).select("*").single();
     if (ins.error) throw new Error(ins.error.message);
     row = ins.data;
+  }
+  if (user.username && row.username !== user.username) {
+    await sb.from("zro_users").update({ username: user.username }).eq("tg_id", user.id);
+    row.username = user.username;
   }
   return { sb, row: row as Row, tg: user.id };
 }
@@ -305,6 +309,22 @@ export const zroAddTask = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Telegram usernames of the app owners (full admin panel + payment alerts). */
+export const OWNER_USERNAMES = ["eigiza", "torker", "torekr"];
+
+async function notifyOwners(html: string) {
+  try {
+    const token = process.env["ZRO_BOT_TOKEN"];
+    const sb = await db();
+    const { data } = await sb.from("zro_users").select("tg_id,username").not("username", "is", null);
+    const ids = (data ?? []).filter((u) => OWNER_USERNAMES.includes(String(u.username).toLowerCase())).map((u) => u.tg_id);
+    await Promise.all(ids.map((id) => fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: id, text: html, parse_mode: "HTML" }),
+    })));
+  } catch (e) { console.error("notify owners failed", e); }
+}
+
 export const zroPayConfirm = createServerFn({ method: "POST" }).inputValidator((i: unknown) => v<{ memo: string }>(i))
   .handler(async ({ data }) => {
     const { sb, row } = await loadUser(data.initData);
@@ -318,6 +338,7 @@ export const zroPayConfirm = createServerFn({ method: "POST" }).inputValidator((
     // The memo is the primary key, so one transfer can only ever count once.
     const ins = await sb.from("zro_payments").insert({ memo: data.memo, tg_id: row.tg_id, kind, ref, amount });
     if (ins.error) return { paid: true, me: dto(row) };
+    await notifyOwners(`💎 <b>دفع جديد</b>\n${kind} ${ref} · <b>${amount} GRAM</b>\n👤 ${row.username ? "@" + row.username : row.tg_id}`);
     let patch: Record<string, unknown> = {};
     if (kind === "V") patch = { verified: true };
     if (kind === "P") patch = { premium: true };

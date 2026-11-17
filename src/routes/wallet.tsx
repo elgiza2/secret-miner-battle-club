@@ -65,6 +65,11 @@ function WalletPage() {
         </p>
       </div>
 
+      <button type="button" onClick={() => { const u = "https://www.binance.com/en/trade/ZRO_USDT"; const tg = (window as any).Telegram?.WebApp; if (tg?.openLink) tg.openLink(u); else window.open(u, "_blank"); }}
+        className="surface pressable flex h-12 items-center justify-center gap-2 rounded-[20px] font-display text-sm font-bold">
+        <img src={ZRO_ICON} alt="" className="h-5 w-5 rounded-full" /> ZRO على Binance
+      </button>
+
       {!wallet.address && (
         <button type="button" onClick={wallet.connect} className="btn-glossy btn-invite pressable flex h-14 items-center justify-center rounded-[20px] font-display text-base font-bold">
           ربط المحفظة

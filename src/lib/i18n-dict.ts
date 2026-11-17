@@ -864,6 +864,7 @@ const DICT: Record<string, { en: string; ru: string; fa: string }> = {
   "en": "Let's go",
   "ru": "Поехали",
   "fa": "بزن بریم"
- }
+ },
+ "ZRO على Binance": {"en": "ZRO on Binance", "ru": "ZRO на Binance", "fa": "ZRO در Binance"}
 };
 export default DICT;
