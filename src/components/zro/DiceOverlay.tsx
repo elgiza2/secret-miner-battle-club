@@ -63,8 +63,9 @@ export default function DiceOverlay({ target, reveal }: { target: number; reveal
     started.current = true;
     const base = FACE_ROT[target] ?? FACE_ROT[1]!;
     const spin = { duration: 1.2, ease: [0.18, 0.72, 0.24, 1] as const };
-    animate(rx, base.x + 720, spin);
-    animate(ry, base.y + 1080, spin);
+    // Land on the rolled face, but leave a small tilt so the cube still reads as 3D.
+    animate(rx, base.x - 14 + 720, spin);
+    animate(ry, base.y + 18 + 1080, spin);
     animate(rz, 0, { duration: 1.2, ease: "easeOut" });
   }, [target, rx, ry, rz]);
 

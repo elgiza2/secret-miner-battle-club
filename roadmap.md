@@ -36,8 +36,9 @@
 ## ZRO mining app (new, page by page)
 - [x] Board home page (اللوحة): clean 3D tiles path, real icons, character that moves on dice roll, energy + ZRO balance
 - [x] Side decoration images removed from the board
-- [ ] Tune the tile icons (الصور جوا) to the user's taste
-- [ ] Add a spin tile + its icon
+- [x] Tile icons tuned: ZRO coin now reads "ZRO", GRAM/PRV/TON added as reward tiles
+- [x] Real 3D dice: cube tumbles and stops on the face it rolled
+- [x] Spin tile + icon added (its reward is still to be decided)
 - [ ] Rewards page (المكافآت)
 - [ ] Season page (الموسم)
 - [ ] Games page (ألعاب)

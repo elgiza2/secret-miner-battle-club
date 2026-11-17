@@ -94,6 +94,7 @@ export default function BoardPage() {
           {popup && (
             <div
               key={popup.key}
+              dir="ltr"
               className="animate-reward-rise surface-strong absolute -top-10 left-1/2 rounded-full px-3 py-1 font-display text-sm font-bold"
             >
               {popup.text}
