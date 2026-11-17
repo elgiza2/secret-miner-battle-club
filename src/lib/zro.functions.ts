@@ -14,8 +14,8 @@ type TgUser = { id: number; username?: string; first_name?: string; photo_url?: 
 type Input = { initData: string };
 const v = <T extends object>(i: unknown) => i as Input & T;
 
-async function hmac(key: ArrayBuffer | Uint8Array, msg: string) {
-  const k = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+async function hmac(key: BufferSource, msg: string) {
+  const k = await crypto.subtle.importKey("raw", key as ArrayBuffer, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   return new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(msg)));
 }
 
@@ -76,7 +76,7 @@ const fromState = (s: BoardState) => ({
 
 /** Writes only if nobody changed the row since we read it (stops double-spend from parallel taps). */
 async function save(sb: Awaited<ReturnType<typeof db>>, r: Row, patch: Row) {
-  const { data, error } = await sb.from("zro_users").update(patch).eq("tg_id", r.tg_id).eq("updated_at", r.updated_at).select("*");
+  const { data, error } = await sb.from("zro_users").update(patch as any).eq("tg_id", r.tg_id).eq("updated_at", r.updated_at).select("*");
   if (error) throw new Error(error.message);
   if (!data?.length) throw new Error("حاول تاني");
   return data[0] as Row;

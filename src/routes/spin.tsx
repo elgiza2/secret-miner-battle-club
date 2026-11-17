@@ -63,7 +63,7 @@ function SpinPage() {
     <div className="relative mx-auto min-h-screen max-w-[430px] overflow-hidden pb-40">
       <div className="pt-tg-safe relative z-10 px-4"><Wordmark /></div>
       {/* Big wheel; its top half runs off the screen like the reference. */}
-      <div className="relative mx-auto -mt-[260px] aspect-square w-[150%] -translate-x-[16.6%]" style={{ maxWidth: "none" }}>
+      <div dir="ltr" className="relative -mt-[260px] aspect-square w-[150%]" style={{ maxWidth: "none", right: "-25%" }}>
         <div className="absolute inset-0 rounded-full p-[14px]" style={{ background: "linear-gradient(180deg,#ffd84a,#f0a300 60%,#c97a00)", boxShadow: "0 30px 60px -20px rgba(0,0,0,.8), inset 0 4px 10px rgba(255,255,255,.5)" }}>
           <div className="relative h-full w-full overflow-hidden rounded-full"
             style={{ background: bg, transform: `rotate(${rot}deg)`, transition: busy ? "transform 4.2s cubic-bezier(0.12,0.8,0.2,1)" : "none" }}>

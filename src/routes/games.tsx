@@ -1,70 +1,61 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search, X } from "lucide-react";
 import ZroPage, { Section } from "@/components/zro/ZroPage";
-
-// Free HTML5 games catalog (GameMonetize feed, thousands of titles, CORS-open).
-type Game = { id: string; title: string; description: string; url: string; category: string; thumb: string };
-const CATS = [
-  { key: "", label: "الكل" }, { key: "Arcade", label: "ARCADE" }, { key: "Puzzles", label: "PUZZLE" },
-  { key: "Sports", label: "SPORT" }, { key: "Action", label: "ACTION" }, { key: "Racing", label: "RACING" },
-];
-
-async function fetchGames(category: string): Promise<Game[]> {
-  const q = new URLSearchParams({ format: "0", num: "60", page: "1" });
-  if (category) q.set("category", category);
-  const r = await fetch(`https://gamemonetize.com/feed.php?${q}`);
-  if (!r.ok) throw new Error("feed");
-  return r.json();
-}
+import { GAMES, GAME_CATS, type Game, type GameCat } from "@/lib/zro-games";
 
 export const Route = createFileRoute("/games")({
   component: GamesPage,
   head: () => ({
     meta: [
       { title: "ألعاب — ZRO" },
-      { name: "description", content: "أكتر من ألف لعبة مجانية تلعبها جوه ZRO." },
+      { name: "description", content: "ألعاب مجانية من غير إعلانات تلعبها جوه ZRO." },
       { property: "og:title", content: "ألعاب — ZRO" },
-      { property: "og:description", content: "أكتر من ألف لعبة مجانية تلعبها جوه ZRO." },
+      { property: "og:description", content: "ألعاب مجانية من غير إعلانات تلعبها جوه ZRO." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
 });
 
+function Thumb({ g, big }: { g: Game; big?: boolean }) {
+  return (
+    <div className={`grid shrink-0 place-items-center ${big ? "h-full w-full text-6xl" : "h-14 w-14 rounded-2xl text-2xl"}`}
+      style={{ background: `linear-gradient(150deg, ${g.color}, color-mix(in oklab, ${g.color} 45%, black))` }}>
+      {g.emoji}
+    </div>
+  );
+}
+
 function GamesPage() {
-  const [cat, setCat] = useState("");
+  const [cat, setCat] = useState<GameCat | "">("");
+  const [searching, setSearching] = useState(false);
   const [term, setTerm] = useState("");
   const [playing, setPlaying] = useState<Game | null>(null);
-  const { data, isLoading, isError } = useQuery({ queryKey: ["games", cat], queryFn: () => fetchGames(cat), staleTime: 600_000 });
-  const list = (data ?? []).filter((g) => g.title.toLowerCase().includes(term.toLowerCase()));
-  const featured = list.slice(0, 6);
+  const list = GAMES.filter((g) => (!cat || g.cat === cat) && g.title.toLowerCase().includes(term.toLowerCase()));
+  const groups = GAME_CATS.filter((c) => c.key && (!cat || c.key === cat));
 
   return (
     <ZroPage>
-      <div className="surface flex items-center gap-2 rounded-full px-3 py-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="دور على لعبة" className="w-full bg-transparent text-sm outline-none" />
-      </div>
-      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
-        {CATS.map((c) => (
-          <button key={c.key} type="button" onClick={() => setCat(c.key)} className={`pressable shrink-0 rounded-full px-4 py-2 font-display text-sm font-bold ${cat === c.key ? "bg-foreground text-background" : "surface"}`}>
+      <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4">
+        <button type="button" aria-label="بحث" onClick={() => { setSearching((v) => !v); setTerm(""); }} className={`pressable grid h-9 w-9 shrink-0 place-items-center rounded-full ${searching ? "bg-foreground text-background" : "surface"}`}>
+          {searching ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+        </button>
+        {searching ? (
+          <input autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="دور على لعبة" className="surface h-9 min-w-0 flex-1 rounded-full px-4 text-sm outline-none" />
+        ) : GAME_CATS.map((c) => (
+          <button key={c.key} type="button" onClick={() => setCat(c.key)} className={`pressable h-9 shrink-0 rounded-full px-4 font-display text-sm font-bold ${cat === c.key ? "bg-foreground text-background" : "surface"}`}>
             {c.label}
           </button>
         ))}
       </div>
 
-      {isLoading && <p className="text-center text-sm text-muted-foreground">بنحمّل الألعاب…</p>}
-      {isError && <p className="text-center text-sm text-muted-foreground">مقدرناش نحمّل الألعاب، جرب تاني.</p>}
-
-      {featured.length > 0 && (
+      {!term && !cat && (
         <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4">
-          {featured.map((g) => (
-            <div key={g.id} className="relative h-48 w-[85%] shrink-0 snap-center overflow-hidden rounded-[26px]">
-              <img src={g.thumb} alt={g.title} className="h-full w-full object-cover" />
+          {GAMES.slice(0, 5).map((g) => (
+            <div key={g.id} className="relative h-44 w-[85%] shrink-0 snap-center overflow-hidden rounded-[26px]">
+              <Thumb g={g} big />
               <div className="surface-strong absolute inset-x-2 bottom-2 flex items-center gap-2 rounded-[20px] p-2">
-                <img src={g.thumb} alt="" className="h-10 w-10 rounded-xl object-cover" />
                 <p dir="ltr" className="min-w-0 flex-1 truncate text-right font-display text-sm font-bold">{g.title}</p>
                 <button type="button" onClick={() => setPlaying(g)} className="btn-glossy btn-invite pressable rounded-full px-4 py-1.5 font-display text-sm font-bold">العب</button>
               </div>
@@ -73,22 +64,13 @@ function GamesPage() {
         </div>
       )}
 
-      {list.length > 0 && (
-        <Section title="الألعاب الرائجة">
-          <div className="flex flex-col gap-3">
-            {list.map((g) => (
-              <div key={g.id} className="flex items-center gap-3">
-                <img src={g.thumb} alt={g.title} loading="lazy" className="h-14 w-14 shrink-0 rounded-2xl object-cover" />
-                <div dir="ltr" className="min-w-0 flex-1 text-right">
-                  <p className="truncate font-display text-sm font-bold">{g.title}</p>
-                  <p className="line-clamp-2 text-[11px] text-muted-foreground">{g.description}</p>
-                </div>
-                <button type="button" onClick={() => setPlaying(g)} className="btn-glossy btn-invite pressable shrink-0 rounded-full px-4 py-1.5 font-display text-sm font-bold">العب</button>
-              </div>
-            ))}
-          </div>
-        </Section>
-      )}
+      {term ? (
+        <Section title="النتائج"><GameList games={list} play={setPlaying} /></Section>
+      ) : groups.map((c) => {
+        const gs = list.filter((g) => g.cat === c.key);
+        return gs.length ? <Section key={c.key} title={c.label}><GameList games={gs} play={setPlaying} /></Section> : null;
+      })}
+      {term && list.length === 0 && <p className="text-center text-sm text-muted-foreground">مفيش لعبة بالاسم ده</p>}
 
       {playing && (
         <div className="fixed inset-0 z-[600000] flex flex-col bg-background">
@@ -100,5 +82,19 @@ function GamesPage() {
         </div>
       )}
     </ZroPage>
+  );
+}
+
+function GameList({ games, play }: { games: Game[]; play: (g: Game) => void }) {
+  return (
+    <div className="flex flex-col gap-3">
+      {games.map((g) => (
+        <div key={g.id} className="flex items-center gap-3">
+          <Thumb g={g} />
+          <p dir="ltr" className="min-w-0 flex-1 truncate text-right font-display text-sm font-bold">{g.title}</p>
+          <button type="button" onClick={() => play(g)} className="btn-glossy btn-invite pressable shrink-0 rounded-full px-4 py-1.5 font-display text-sm font-bold">العب</button>
+        </div>
+      ))}
+    </div>
   );
 }
