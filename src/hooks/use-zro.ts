@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import { zroMe, type ZroMe } from "@/lib/zro.functions";
 import { applyRegen, msUntilNextEnergy, canRoll } from "@/lib/zro-board";
 

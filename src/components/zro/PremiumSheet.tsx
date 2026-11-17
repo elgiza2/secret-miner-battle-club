@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import { useZro } from "@/hooks/use-zro";
 import { usePay } from "@/hooks/use-pay";
 import { ENERGY_BOX, GIFT, GRAM_ICON, PREMIUM_PASS, SPIN_ICON } from "@/lib/zro-assets";

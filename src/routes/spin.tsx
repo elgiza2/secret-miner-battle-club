@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Clapperboard } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import { Wordmark } from "@/components/zro/ZroPage";
 import { act, initData, showAd, useZro } from "@/hooks/use-zro";
 import { ENERGY_ICON, GRAM_ICON, SPIN_ICON, ZRO_ICON } from "@/lib/zro-assets";

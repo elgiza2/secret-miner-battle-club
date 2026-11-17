@@ -1,5 +1,5 @@
 import { Check, Copy, Send } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import { ENERGY_ICON, GIFT, ZRO_ICON } from "@/lib/zro-assets";
 
 export const INVITE_REWARD_ZRO = 0.005;

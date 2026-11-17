@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDownToLine, ArrowUpFromLine, ShieldCheck, X } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import { useEffect, useState } from "react";
 import { usePrices } from "@/hooks/use-prices";
 import { usePay } from "@/hooks/use-pay";

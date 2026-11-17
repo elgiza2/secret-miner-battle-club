@@ -61,3 +61,6 @@
 - [ ] Bot /start message with custom emoji + colored buttons; community id -1004311142881
 - [ ] Fixed tasks: Mixsaa community + Mixsaa app
 - [ ] Monetag ads SDK zone 12288175 (show_12288175) on ad buttons
+- [x] Inline text notices instead of toasts
+- [x] Top safe area for Telegram buttons
+- [x] Find ad-free free games source

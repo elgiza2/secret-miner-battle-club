@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Tv } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import ZroPage, { Section } from "@/components/zro/ZroPage";
 import PremiumSheet from "@/components/zro/PremiumSheet";
 import { act, initData, showAd, useZro } from "@/hooks/use-zro";

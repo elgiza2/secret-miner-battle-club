@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { CheckCircle2, Lock } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import ZroPage from "@/components/zro/ZroPage";
 import PremiumSheet from "@/components/zro/PremiumSheet";
 import { act, initData, useZro } from "@/hooks/use-zro";

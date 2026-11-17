@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/notify";
 import { initData, useZro } from "@/hooks/use-zro";
 import { useTonWallet } from "@/hooks/use-ton-wallet";
 import { zroPayConfirm } from "@/lib/zro.functions";

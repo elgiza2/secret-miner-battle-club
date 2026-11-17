@@ -12,7 +12,7 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Toaster } from "@/components/ui/sonner";
+import { InlineNotices } from "@/lib/notify";
 import BottomNav from "@/components/zro/BottomNav";
 
 import appCss from "../styles.css?url";
@@ -107,7 +107,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster position="top-center" theme="dark" />
+      <InlineNotices />
       <TelegramChrome />
       <Outlet />
       <BottomNav />
@@ -136,6 +136,7 @@ function TelegramChrome() {
     tg?.expand?.();
     tg?.disableVerticalSwipes?.();
     try { if (tg?.isVersionAtLeast?.("8.0")) tg.requestFullscreen?.(); } catch { /* older client */ }
+    if (tg?.platform && tg.platform !== "unknown") document.documentElement.classList.add("tg-app");
   }, []);
   useEffect(() => {
     // First visit goes through the welcome screen, which also caches every image.
