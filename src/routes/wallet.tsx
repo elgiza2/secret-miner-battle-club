@@ -65,6 +65,12 @@ function WalletPage() {
         </p>
       </div>
 
+      {!wallet.address && (
+        <button type="button" onClick={wallet.connect} className="btn-glossy btn-invite pressable flex h-14 items-center justify-center rounded-[20px] font-display text-base font-bold">
+          ربط المحفظة
+        </button>
+      )}
+
       <div className="grid grid-cols-2 gap-3">
         <button type="button" onClick={() => setSheet(true)} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
           <ArrowUpFromLine className="h-5 w-5" /> سحب

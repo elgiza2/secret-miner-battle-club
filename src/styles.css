@@ -277,3 +277,6 @@
 
 /* Inside Telegram full screen: always leave room for Telegram's close/back buttons. */
 .tg-app { --zro-top-min: 76px; }
+
+/* TON Connect wallet picker must sit above the bottom tab bar. */
+#tc-widget-root { position: relative; z-index: 9999; }
