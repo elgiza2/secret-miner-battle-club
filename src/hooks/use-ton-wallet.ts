@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { TonConnectUI } from "@tonconnect/ui";
 
 // Wallets fetch this from their own servers, so it must be a public (published) URL.
-const MANIFEST_URL = typeof window !== "undefined" ? `${window.location.origin}/tonconnect-manifest.json` : "";
+const MANIFEST_URL = "https://secret-miner-battle-club.lovable.app/tonconnect-manifest.json";
 
 export const PAY_TO = "UQA5k2qscmlDz0tYaNMlmhCW5czvc6zMJpB78T4y4GDz9Q5a";
 
