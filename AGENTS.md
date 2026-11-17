@@ -29,7 +29,7 @@ use the editor.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 
-- Keep both Gram and Nova image URLs centralized in the currency icon module so balances, games, and market displays use distinct, consistent assets.
-- Serve the shared moving background with local MP4 and WebM sources plus a poster because Telegram WebViews differ in video decoding support.
 - The browser Supabase client reads its URL/key only from src/lib/supabase-config.ts (pinned, not VITE_* env), because this project's injected env points at a different, empty backend.
-- Image/video files served by the app live in public/ (e.g. public/media), since asset pointers from the original project do not resolve here.
+- ZRO game rules (energy, roll cost, regen, tile rewards, path layout) live only in src/lib/zro-board.ts as pure functions with tests, so UI and a future server can share them.
+- All ZRO images are imported through src/lib/zro-assets.ts so pages never reference image files directly.
+- Board tiles are CSS-transformed squares (rotateX/rotateZ) drawn by the `tile*` utilities in styles.css; z-order is by tile index so nearer tiles overlap farther ones.

@@ -1,22 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import MiningPage from "@/pages/MiningPage";
+import BoardPage from "@/components/zro/BoardPage";
 
 export const Route = createFileRoute("/")({
-  component: MiningPage,
+  component: BoardPage,
   head: () => ({
     meta: [
-      { title: "Groyper Miner - GROYP on TON" },
-      {
-        name: "description",
-        content: "Track the GROYP token market and in-app mining balance on TON.",
-      },
-      { property: "og:title", content: "Groyper Miner - GROYP on TON" },
-      {
-        property: "og:description",
-        content: "View the live GROYP quote and manage in-app mining rewards.",
-      },
+      { title: "ZRO Miner — ارمي النرد واجمع ZRO" },
+      { name: "description", content: "لوحة تعدين ZRO: ارمي النرد، حرك قطعتك، واجمع ZRO وطاقة وXP." },
+      { property: "og:title", content: "ZRO Miner — ارمي النرد واجمع ZRO" },
+      { property: "og:description", content: "لوحة تعدين ZRO: ارمي النرد، حرك قطعتك، واجمع ZRO وطاقة وXP." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });

@@ -31,4 +31,13 @@
 
 ## Imported into new project (Nov 2026)
 - [x] Import repo from GitHub, keep same live backend
-- [ ] Full iOS-style clean glass redesign (paused by user; resume on request)
+- [x] Old Groyper app replaced by ZRO app (iOS glass redesign dropped)
+
+## ZRO mining app (new, page by page)
+- [x] Board home page (اللوحة): clean 3D tiles path, real icons, character that moves on dice roll, energy + ZRO balance
+- [ ] Rewards page (المكافآت)
+- [ ] Season page (الموسم)
+- [ ] Games page (ألعاب)
+- [ ] Store page (المتجر)
+- [ ] Quick actions (اجمع، سلسلة، هدايا، عجلة) — waiting for their designs
+- [ ] Save ZRO progress on a server instead of the device (needs decision)

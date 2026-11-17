@@ -1,12 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import Page from "@/pages/GamesPage";
+import ComingSoon from "@/components/zro/ComingSoon";
+import { GAMEPAD } from "@/lib/zro-assets";
 
 export const Route = createFileRoute("/games")({
-  component: Page,
+  component: () => <ComingSoon title="ألعاب" icon={GAMEPAD} />,
   head: () => ({
     meta: [
-      { title: "StarMine — TON Staking" },
-      { name: "description", content: "Explore live TON prices and staking offers from 100 gram." },
+      { title: "ألعاب — ZRO Miner" },
+      { name: "description", content: "ألعاب صغيرة تكسب منها طاقة وZRO." },
+      { property: "og:title", content: "ألعاب — ZRO Miner" },
+      { property: "og:description", content: "ألعاب صغيرة تكسب منها طاقة وZRO." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
