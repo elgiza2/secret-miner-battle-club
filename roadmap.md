@@ -66,3 +66,7 @@
 - [x] Find ad-free free games source
 - [x] Investigate DB issue stopping /start in other bots
 - [x] Add games from NEBULA CDN
+- [ ] Fix /start not responding
+- [ ] Draw: after joining show invite + 'each friend raises your chance'
+- [ ] New games source (modern, ad-free) + ad before each game
+- [ ] 4 languages (ar/en/ru/fa) app + bot, auto by user language, default en
