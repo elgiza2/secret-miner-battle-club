@@ -66,11 +66,11 @@
 - [x] Find ad-free free games source
 - [x] Investigate DB issue stopping /start in other bots
 - [x] Add games from NEBULA CDN
-- [ ] Fix /start not responding
-- [ ] Draw: after joining show invite + 'each friend raises your chance'
-- [ ] New games source (modern, ad-free) + ad before each game
-- [ ] 4 languages (ar/en/ru/fa) app + bot, auto by user language, default en
-- [ ] Fix payments across app
-- [ ] Admin panel /101 (@eigiza @torker): stats, payment notifications, tasks CRUD, task-only admins
+- [x] Fix /start not responding
+- [x] Draw: after joining show invite + 'each friend raises your chance'
+- [x] New games source (modern, ad-free) + ad before each game
+- [x] 4 languages (ar/en/ru/fa) app + bot, auto by user language, default en
+- [x] Fix payments across app
+- [x] Admin panel /101 (@eigiza @torker): stats, payment notifications, tasks CRUD, task-only admins
 - [ ] 15 days of community posts (image+text), send sample to @eigiza (needs community link + @eigiza must /start bot)
-- [ ] Binance ZRO link in wallet
+- [x] Binance ZRO link in wallet
