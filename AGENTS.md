@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep both Gram and Nova image URLs centralized in the currency icon module so balances, games, and market displays use distinct, consistent assets.
+- Serve the shared moving background with local MP4 and WebM sources plus a poster because Telegram WebViews differ in video decoding support.
+- The browser Supabase client reads its URL/key only from src/lib/supabase-config.ts (pinned, not VITE_* env), because this project's injected env points at a different, empty backend.
+- Image/video files served by the app live in public/ (e.g. public/media), since asset pointers from the original project do not resolve here.
