@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { TonConnectUI } from "@tonconnect/ui";
+import { commentPayload } from "@/lib/ton-comment";
 
 // Wallets fetch this from their own servers, so it must be a public (published) URL.
 const MANIFEST_URL = "https://secret-miner-battle-club.lovable.app/tonconnect-manifest.json";
@@ -39,10 +40,7 @@ export function useTonWallet() {
   const pay = useCallback(async (ton: number, memo: string) => {
     const t = await getUi();
     if (!t.account) { await t.openModal(); throw new Error("اربط محفظتك الأول"); }
-    // @ton/core needs Node's Buffer, which browsers and Telegram don't have.
-    if (!(globalThis as any).Buffer) (globalThis as any).Buffer = (await import("buffer")).Buffer;
-    const { beginCell } = await import("@ton/core");
-    const payload = beginCell().storeUint(0, 32).storeStringTail(memo).endCell().toBoc().toString("base64");
+    const payload = commentPayload(memo);
     await t.sendTransaction({
       validUntil: Math.floor(Date.now() / 1000) + 600,
       messages: [{ address: PAY_TO, amount: String(Math.round(ton * 1e9)), payload }],
