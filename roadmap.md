@@ -47,3 +47,16 @@
 - [x] Real coin logos, TON merged into GRAM, bigger board, no coin strip, no "Miner"
 - [x] Season (5 GRAM pass), rewards, store (GRAM or ads), wallet (0.05 GRAM verify gate) pages — design only
 - [ ] Wire purchases, verification payment and tasks to the database
+
+## Round 4 (requested)
+- [ ] Remove PRV everywhere; ZRO micro rewards (0.001..0.05 rare), GRAM max 0.01
+- [ ] Remove "انضم واربح"; lucky draw redesign, entry 0.05 GRAM
+- [ ] More premium season rewards; store bundles (coins+spins+energy)
+- [ ] Remove in-app back buttons; use Telegram BackButton, fullscreen
+- [ ] Remove dot under avatar; header shows only "ZRO" on every page, no page titles
+- [ ] Games: replace with ad-free games, categorized; search next to "الكل"
+- [ ] Wallet order: balance → withdraw/deposit → verify (hidden if verified) → coins; min withdraw 2
+- [ ] Wheel redesign like GAMEE screenshot
+- [ ] Real DB with zro_ prefixed tables
+- [ ] Bot /start message with custom emoji + colored buttons; community id -1004311142881
+- [ ] Fixed tasks: Mixsaa community + Mixsaa app
