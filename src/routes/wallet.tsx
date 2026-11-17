@@ -3,12 +3,13 @@ import { ArrowDownToLine, ArrowUpFromLine, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { usePrices } from "@/hooks/use-prices";
+import { usePay } from "@/hooks/use-pay";
 import ZroPage, { Section } from "@/components/zro/ZroPage";
 import { act, initData, useZro } from "@/hooks/use-zro";
 import { GRAM_ICON, WALLET_ICON, ZRO_ICON } from "@/lib/zro-assets";
 import { MIN_WITHDRAW, VERIFY_FEE_GRAM } from "@/lib/zro-board";
 import { formatZro } from "@/lib/zro-format";
-import { zroSetWallet, zroVerify, zroWithdraw } from "@/lib/zro.functions";
+import { zroSetWallet, zroWithdraw } from "@/lib/zro.functions";
 import { shortAddress, useTonWallet } from "@/hooks/use-ton-wallet";
 
 export const Route = createFileRoute("/wallet")({
@@ -41,17 +42,9 @@ function WalletPage() {
   }, [wallet.address, me?.wallet]);
 
   const prices = usePrices();
+  const payer = usePay();
   const usd = (me?.zro ?? 0) * prices.zro + (me?.gram ?? 0) * prices.gram;
-  const verify = async () => {
-    if (!me) return;
-    setBusy(true);
-    try { await wallet.pay(VERIFY_FEE_GRAM, `ZRO-V-${me.tgId}`); } catch (e) { toast((e as Error).message || "اتلغى الدفع"); setBusy(false); return; }
-    toast("بنتحقق من الدفع…");
-    await new Promise((r) => setTimeout(r, 15000));
-    const m = await act(() => zroVerify({ data: { initData: initData(), wallet: wallet.address ?? undefined } }));
-    if (m) { set(m); toast("اتوثقت محفظتك، تقدر تلعب دلوقتي"); }
-    setBusy(false);
-  };
+  const verify = () => payer.pay("V", VERIFY_FEE_GRAM).then((ok) => ok && toast("اتوثقت محفظتك، تقدر تلعب دلوقتي"));
   const withdraw = async () => {
     setBusy(true);
     const m = await act(() => zroWithdraw({ data: { initData: initData(), coin, amount: Number(amount) } }));
@@ -76,7 +69,7 @@ function WalletPage() {
         <button type="button" onClick={() => setSheet(true)} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
           <ArrowUpFromLine className="h-5 w-5" /> سحب
         </button>
-        <button type="button" onClick={() => toast("الإيداع هيتفعل أول ما نضيف عنوان محفظة الاستلام")} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
+        <button type="button" onClick={wallet.address ? () => toast("المحفظة مربوطة، أي دفع بيتم منها على طول") : wallet.connect} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
           <ArrowDownToLine className="h-5 w-5" /> إيداع
         </button>
       </div>
@@ -90,7 +83,7 @@ function WalletPage() {
               <p className="text-xs">مرة واحدة بس، وبعدها تقدر ترمي النرد.</p>
             </div>
           </div>
-          <button type="button" disabled={busy} onClick={verify} className="btn-glossy btn-premium pressable flex h-12 items-center justify-center gap-2 rounded-full font-display text-lg font-extrabold">
+          <button type="button" disabled={payer.busy} onClick={verify} className="btn-glossy btn-premium pressable flex h-12 items-center justify-center gap-2 rounded-full font-display text-lg font-extrabold">
             ادفع <span dir="ltr">{VERIFY_FEE_GRAM}</span> <img src={GRAM_ICON} alt="GRAM" className="h-6 w-6 rounded-full" /> GRAM
           </button>
         </div>

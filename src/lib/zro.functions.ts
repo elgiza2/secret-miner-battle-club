@@ -146,7 +146,7 @@ export const zroBuy = createServerFn({ method: "POST" }).inputValidator((i: unkn
       const need = adsForPrice(b.gram);
       if (ads < need) throw new Error(`محتاج ${need - ads} إعلان كمان`);
       ads -= need;
-    } else s = spendGram(s, b.gram);
+    } else throw new Error("الدفع بيتم من محفظتك");
     s = addReward(s, bundleReward(b));
     return dto(await save(sb, row, { ...fromState(s), ads_watched: ads }));
   });
@@ -166,10 +166,6 @@ export const zroBuyPass = createServerFn({ method: "POST" }).inputValidator((i: 
   .handler(async ({ data }) => {
     const { sb, row } = await loadUser(data.initData);
     if (row.premium) return dto(row);
-    // Pay from in-app GRAM if there is enough, otherwise it must be paid on-chain.
-    if (toState(row).gram >= SEASON_PASS_GRAM) {
-      return dto(await save(sb, row, { ...fromState(spendGram(toState(row), SEASON_PASS_GRAM)), premium: true }));
-    }
     if (!(await paidOnChain(`ZRO-P-${row.tg_id}`, SEASON_PASS_GRAM))) throw new Error("لسه الدفع موصلش، استنى دقيقة وجرب تاني");
     return dto(await save(sb, row, { premium: true }));
   });
@@ -213,13 +209,7 @@ export const zroDraw = createServerFn({ method: "POST" }).inputValidator((i: unk
     let me = dto(row);
     const mine = await sb.from("zro_draw_entries").select("id").eq("tg_id", row.tg_id).eq("draw_day", today).maybeSingle();
     let joined = !!mine.data;
-    if (data.join && !joined) {
-      const s = spendGram(toState(row), DRAW_ENTRY_GRAM);
-      me = dto(await save(sb, row, fromState(s)));
-      const e = await sb.from("zro_draw_entries").insert({ tg_id: row.tg_id, draw_day: today });
-      if (e.error) throw new Error(e.error.message);
-      joined = true;
-    }
+    if (data.join && !joined) throw new Error("الدخول بيتم بالدفع من محفظتك");
     const { count } = await sb.from("zro_draw_entries").select("id", { count: "exact", head: true }).eq("draw_day", today);
     return { me, joined, entrants: count ?? 0, pot: round((count ?? 0) * DRAW_ENTRY_GRAM * 0.9) };
   });
@@ -275,4 +265,42 @@ export const zroInvites = createServerFn({ method: "POST" }).inputValidator((i: 
     const { sb, tg } = await loadUser(data.initData);
     const { count } = await sb.from("zro_users").select("tg_id", { count: "exact", head: true }).eq("ref_by", tg);
     return { count: count ?? 0, tg };
+  });
+
+/** Price in GRAM for each thing bought straight from the player's wallet. */
+function payPrice(kind: string, ref: string): number {
+  if (kind === "V") return VERIFY_FEE_GRAM;
+  if (kind === "P") return SEASON_PASS_GRAM;
+  if (kind === "D") return DRAW_ENTRY_GRAM;
+  if (kind === "B") { const b = BUNDLES.find((x) => x.id === ref); if (b) return b.gram; }
+  throw new Error("دفع غير معروف");
+}
+
+/**
+ * Called right after the wallet sends GRAM. Looks for the transfer on the TON chain
+ * (comment = memo) and applies it once; returns { paid:false } until it lands.
+ * Memo: ZRO-<kind>-<ref>-<tg>-<nonce>
+ */
+export const zroPayConfirm = createServerFn({ method: "POST" }).inputValidator((i: unknown) => v<{ memo: string }>(i))
+  .handler(async ({ data }) => {
+    const { sb, row } = await loadUser(data.initData);
+    const m = /^ZRO-([VPDB])-([a-z0-9]*)-(\d+)-([a-z0-9]{6,16})$/.exec(data.memo ?? "");
+    if (!m || Number(m[3]) !== Number(row.tg_id)) throw new Error("دفع غير صالح");
+    const [, kind, ref] = m as unknown as [string, string, string];
+    const amount = payPrice(kind, ref);
+    const seen = await sb.from("zro_payments").select("memo").eq("memo", data.memo).maybeSingle();
+    if (seen.data) return { paid: true, me: dto(row) };
+    if (!(await paidOnChain(data.memo, amount))) return { paid: false, me: dto(row) };
+    // The memo is the primary key, so one transfer can only ever count once.
+    const ins = await sb.from("zro_payments").insert({ memo: data.memo, tg_id: row.tg_id, kind, ref, amount });
+    if (ins.error) return { paid: true, me: dto(row) };
+    let patch: Record<string, unknown> = {};
+    if (kind === "V") patch = { verified: true };
+    if (kind === "P") patch = { premium: true };
+    if (kind === "B") patch = fromState(addReward(toState(row), bundleReward(BUNDLES.find((x) => x.id === ref)!)));
+    if (kind === "D") {
+      await sb.from("zro_draw_entries").insert({ tg_id: row.tg_id, draw_day: new Date().toISOString().slice(0, 10) });
+    }
+    const saved = Object.keys(patch).length ? await save(sb, row, patch) : row;
+    return { paid: true, me: dto(saved) };
   });

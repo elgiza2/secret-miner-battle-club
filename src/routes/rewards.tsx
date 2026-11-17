@@ -4,9 +4,10 @@ import { useState } from "react";
 import { Check, Users } from "lucide-react";
 import { toast } from "sonner";
 import ZroPage, { Section } from "@/components/zro/ZroPage";
+import { usePay } from "@/hooks/use-pay";
 import InviteCard from "@/components/zro/InviteCard";
 import { act, initData, useZro } from "@/hooks/use-zro";
-import { DRAW_BG, DRAW_PRIZE, ENERGY_ICON, GRAM_ICON } from "@/lib/zro-assets";
+import { DRAW_BG, ENERGY_ICON, GRAM_ICON } from "@/lib/zro-assets";
 import { DRAW_ENTRY_GRAM, dailyDrawPrize } from "@/lib/zro-rewards";
 import { zroClaimTask, zroDraw, zroInvites, zroTasks } from "@/lib/zro.functions";
 
@@ -38,20 +39,19 @@ function LuckyDraw() {
   const q = useQuery({ queryKey: ["zro-draw"], queryFn: () => zroDraw({ data: { initData: initData() } }) });
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const payer = usePay();
   const join = async () => {
     setBusy(true);
-    const r = await act(() => zroDraw({ data: { initData: initData(), join: true } }));
-    if (r) { set(r.me); qc.setQueryData(["zro-draw"], r); toast("دخلت السحب، بالتوفيق"); }
+    if (await payer.pay("D", DRAW_ENTRY_GRAM)) { qc.invalidateQueries({ queryKey: ["zro-draw"] }); toast("دخلت السحب، بالتوفيق"); }
     setBusy(false);
   };
   const d = q.data;
   return (
     <div className="relative overflow-hidden rounded-[28px] border border-border p-4" style={{ backgroundImage: `url(${DRAW_BG})`, backgroundSize: "cover", backgroundPosition: "center" }}>
       <div className="relative flex items-center gap-4">
-        <img src={DRAW_PRIZE} alt="جائزة السحب" className="h-28 w-28 shrink-0 object-contain drop-shadow-xl" />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 py-4">
           <p className="text-xs text-muted-foreground">جائزة سحب النهارده</p>
-          <p dir="ltr" className="flex items-center justify-end gap-1.5 font-display text-3xl font-extrabold tabular-nums">
+          <p dir="ltr" className="flex items-center justify-end gap-1.5 font-display text-4xl font-extrabold tabular-nums">
             {dailyDrawPrize(new Date().toISOString().slice(0, 10))} <img src={GRAM_ICON} alt="GRAM" className="h-7 w-7 rounded-full" />
           </p>
           <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground"><Users className="h-3.5 w-3.5" /> {d?.entrants ?? 0} مشارك</p>

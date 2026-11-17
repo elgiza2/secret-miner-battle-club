@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ZroPage, { Section } from "@/components/zro/ZroPage";
 import PremiumSheet from "@/components/zro/PremiumSheet";
 import { act, initData, showAd, useZro } from "@/hooks/use-zro";
+import { usePay } from "@/hooks/use-pay";
 import { ENERGY_BOX, ENERGY_ICON, GRAM_ICON, PREMIUM_PASS, SPIN_ICON, ZRO_ICON } from "@/lib/zro-assets";
 import { adsForPrice } from "@/lib/zro-board";
 import { BUNDLES } from "@/lib/zro-rewards";
@@ -36,7 +37,13 @@ function StorePage() {
   const { me, set } = useZro();
   const [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false);
+  const payer = usePay();
   const buy = async (id: string, withAds: boolean) => {
+    if (!withAds) {
+      const b = BUNDLES.find((x) => x.id === id)!;
+      if (await payer.pay("B", b.gram, id)) toast("الباقة اتضافت لحسابك");
+      return;
+    }
     setBusy(true);
     const m = await act(() => zroBuy({ data: { initData: initData(), bundle: id, withAds } }));
     if (m) { set(m); toast("الباقة اتضافت لحسابك"); }
@@ -82,7 +89,7 @@ function StorePage() {
                 <Line icon={ZRO_ICON} value={`+${b.zro}`} />
                 {b.bonusGram > 0 && <Line icon={GRAM_ICON} value={`+${b.bonusGram}`} />}
               </div>
-              <button type="button" disabled={busy} onClick={() => buy(b.id, false)} className="btn-glossy btn-success pressable flex h-9 w-full items-center justify-center gap-1 rounded-full font-display text-base font-extrabold">
+              <button type="button" disabled={busy || payer.busy} onClick={() => buy(b.id, false)} className="btn-glossy btn-success pressable flex h-9 w-full items-center justify-center gap-1 rounded-full font-display text-base font-extrabold">
                 <span dir="ltr">{b.gram}</span><img src={GRAM_ICON} alt="GRAM" className="h-5 w-5 rounded-full" />
               </button>
               <button type="button" disabled={busy} onClick={() => buy(b.id, true)} className="pressable flex h-8 w-full items-center justify-center gap-1 rounded-full border border-border text-[11px] font-semibold">

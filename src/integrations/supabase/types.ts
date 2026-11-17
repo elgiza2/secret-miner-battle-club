@@ -5154,6 +5154,33 @@ export type Database = {
           },
         ]
       }
+      zro_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          kind: string
+          memo: string
+          ref: string | null
+          tg_id: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          kind: string
+          memo: string
+          ref?: string | null
+          tg_id: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          kind?: string
+          memo?: string
+          ref?: string | null
+          tg_id?: number
+        }
+        Relationships: []
+      }
       zro_season_claims: {
         Row: {
           created_at: string
