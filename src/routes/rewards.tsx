@@ -9,7 +9,7 @@ import InviteCard from "@/components/zro/InviteCard";
 import { act, initData, useZro } from "@/hooks/use-zro";
 import { DRAW_BG, ENERGY_ICON, GRAM_ICON } from "@/lib/zro-assets";
 import { DRAW_ENTRY_GRAM, dailyDrawPrize } from "@/lib/zro-rewards";
-import { zroClaimTask, zroDraw, zroInvites, zroTasks } from "@/lib/zro.functions";
+import { zroAddTask, zroClaimTask, zroDraw, zroInvites, zroTasks } from "@/lib/zro.functions";
 
 export const Route = createFileRoute("/rewards")({
   component: RewardsPage,
@@ -87,9 +87,10 @@ function RewardsPage() {
 
   return (
     <ZroPage>
-      <InviteCard link={`https://t.me/zroeobot?start=ref_${inv.data?.tg ?? (typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id ?? "" : "")}`} count={inv.data?.count ?? 0} />
 
       <Section title="سحب الحظ"><LuckyDraw /></Section>
+
+      <InviteCard link={`https://t.me/zroeobot?start=ref_${inv.data?.tg ?? (typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id ?? "" : "")}`} count={inv.data?.count ?? 0} />
 
       <Section title="المهام">
         <div className="surface flex flex-col divide-y divide-border rounded-[24px] px-3">
@@ -106,6 +107,7 @@ function RewardsPage() {
             </div>
           ))}
         </div>
+        <AddTask />
       </Section>
 
       {done.length > 0 && (
@@ -120,5 +122,40 @@ function RewardsPage() {
         </Section>
       )}
     </ZroPage>
+  );
+}
+
+const TASK_KEY = "zro_task_memo";
+
+/** Paid 1 GRAM listing: pay from the wallet, then name the task and its link. */
+function AddTask() {
+  const { pay, busy, connected, connect } = usePay();
+  const qc = useQueryClient();
+  const [memo, setMemo] = useState<string | null>(() => (typeof window !== "undefined" ? localStorage.getItem(TASK_KEY) : null));
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const start = async () => {
+    if (!connected) return connect();
+    let m = "";
+    const ok = await pay("T", 1, "", (x) => { m = x; });
+    if (ok) { localStorage.setItem(TASK_KEY, m); setMemo(m); }
+  };
+  const submit = async () => {
+    if (!memo) return;
+    const r = await act(() => zroAddTask({ data: { initData: initData(), memo, title, url } }));
+    if (r) { localStorage.removeItem(TASK_KEY); setMemo(null); setTitle(""); setUrl(""); qc.invalidateQueries({ queryKey: ["zro-tasks"] }); toast.success("اتضافت مهمتك"); }
+  };
+  if (memo) return (
+    <div className="surface mt-3 flex flex-col gap-2 rounded-[24px] p-3">
+      <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={60} placeholder="اسم المهمة" className="rounded-2xl bg-muted px-3 py-2 text-sm outline-none" />
+      <input value={url} onChange={(e) => setUrl(e.target.value)} dir="ltr" placeholder="https://t.me/..." className="rounded-2xl bg-muted px-3 py-2 text-sm outline-none" />
+      <button type="button" onClick={submit} className="btn-glossy btn-success pressable rounded-full py-2 font-display text-sm font-bold">أضف المهمة</button>
+    </div>
+  );
+  return (
+    <button type="button" disabled={busy} onClick={start} className="surface pressable mt-3 flex w-full items-center gap-3 rounded-[24px] px-3 py-3">
+      <span className="flex-1 text-start font-display text-sm font-bold">أضف مهمتك</span>
+      <Amount value="1" icon={GRAM_ICON} />
+    </button>
   );
 }

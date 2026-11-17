@@ -1,0 +1,1 @@
+ALTER TABLE public.zro_tasks ADD COLUMN IF NOT EXISTS expires_at timestamptz, ADD COLUMN IF NOT EXISTS owner_tg bigint, ADD COLUMN IF NOT EXISTS pay_memo text UNIQUE;

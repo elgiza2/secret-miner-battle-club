@@ -5248,7 +5248,10 @@ export type Database = {
           active: boolean
           chat_id: string | null
           created_at: string
+          expires_at: string | null
           id: string
+          owner_tg: number | null
+          pay_memo: string | null
           reward_energy: number
           sort: number
           title: string
@@ -5258,7 +5261,10 @@ export type Database = {
           active?: boolean
           chat_id?: string | null
           created_at?: string
+          expires_at?: string | null
           id?: string
+          owner_tg?: number | null
+          pay_memo?: string | null
           reward_energy?: number
           sort?: number
           title: string
@@ -5268,7 +5274,10 @@ export type Database = {
           active?: boolean
           chat_id?: string | null
           created_at?: string
+          expires_at?: string | null
           id?: string
+          owner_tg?: number | null
+          pay_memo?: string | null
           reward_energy?: number
           sort?: number
           title?: string

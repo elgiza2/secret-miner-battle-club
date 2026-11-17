@@ -218,7 +218,8 @@ export const zroTasks = createServerFn({ method: "POST" }).inputValidator((i: In
   .handler(async ({ data }) => {
     const { sb, tg } = await loadUser(data.initData);
     const [{ data: tasks }, { data: done }] = await Promise.all([
-      sb.from("zro_tasks").select("id,title,url,reward_energy").eq("active", true).order("sort"),
+      sb.from("zro_tasks").select("id,title,url,reward_energy").eq("active", true)
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`).order("sort"),
       sb.from("zro_task_claims").select("task_id").eq("tg_id", tg),
     ]);
     const set = new Set((done ?? []).map((d) => d.task_id));
@@ -272,6 +273,7 @@ function payPrice(kind: string, ref: string): number {
   if (kind === "V") return VERIFY_FEE_GRAM;
   if (kind === "P") return SEASON_PASS_GRAM;
   if (kind === "D") return DRAW_ENTRY_GRAM;
+  if (kind === "T") return TASK_LISTING_GRAM;
   if (kind === "B") { const b = BUNDLES.find((x) => x.id === ref); if (b) return b.gram; }
   throw new Error("دفع غير معروف");
 }
@@ -281,10 +283,32 @@ function payPrice(kind: string, ref: string): number {
  * (comment = memo) and applies it once; returns { paid:false } until it lands.
  * Memo: ZRO-<kind>-<ref>-<tg>-<nonce>
  */
+const TASK_LISTING_GRAM = 1;
+
+/** After paying 1 GRAM (memo kind T) the player names their task; it shows for 24 hours. */
+export const zroAddTask = createServerFn({ method: "POST" })
+  .inputValidator((i: unknown) => v<{ memo: string; title: string; url: string }>(i))
+  .handler(async ({ data }) => {
+    const { sb, row } = await loadUser(data.initData);
+    const title = String(data.title ?? "").trim().slice(0, 60);
+    const url = String(data.url ?? "").trim();
+    if (title.length < 2) throw new Error("اكتب اسم المهمة");
+    if (!/^https:\/\/\S+$/.test(url) || url.length > 300) throw new Error("الرابط لازم يبدأ بـ https://");
+    const { data: p } = await sb.from("zro_payments").select("tg_id,kind").eq("memo", data.memo).maybeSingle();
+    if (!p || p.kind !== "T" || Number(p.tg_id) !== Number(row.tg_id)) throw new Error("ادفع الأول");
+    const m = /^https:\/\/t\.me\/([A-Za-z0-9_]{4,})\/?$/.exec(url);
+    const ins = await sb.from("zro_tasks").insert({
+      title, url, reward_energy: 5, sort: 100, active: true, chat_id: m ? `@${m[1]}` : null,
+      owner_tg: row.tg_id, pay_memo: data.memo, expires_at: new Date(Date.now() + 86_400_000).toISOString(),
+    });
+    if (ins.error) throw new Error("المهمة دي اتضافت قبل كده");
+    return { ok: true };
+  });
+
 export const zroPayConfirm = createServerFn({ method: "POST" }).inputValidator((i: unknown) => v<{ memo: string }>(i))
   .handler(async ({ data }) => {
     const { sb, row } = await loadUser(data.initData);
-    const m = /^ZRO-([VPDB])-([a-z0-9]*)-(\d+)-([a-z0-9]{6,16})$/.exec(data.memo ?? "");
+    const m = /^ZRO-([VPDBT])-([a-z0-9]*)-(\d+)-([a-z0-9]{6,16})$/.exec(data.memo ?? "");
     if (!m || Number(m[3]) !== Number(row.tg_id)) throw new Error("دفع غير صالح");
     const [, kind, ref] = m as unknown as [string, string, string];
     const amount = payPrice(kind, ref);

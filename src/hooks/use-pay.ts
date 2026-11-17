@@ -4,7 +4,7 @@ import { initData, useZro } from "@/hooks/use-zro";
 import { useTonWallet } from "@/hooks/use-ton-wallet";
 import { zroPayConfirm } from "@/lib/zro.functions";
 
-export type PayKind = "V" | "P" | "D" | "B";
+export type PayKind = "V" | "P" | "D" | "B" | "T";
 
 /**
  * Pays straight from the player's TON wallet and applies the purchase automatically
@@ -14,10 +14,11 @@ export function usePay() {
   const wallet = useTonWallet();
   const { me, set } = useZro();
   const [busy, setBusy] = useState(false);
-  const pay = useCallback(async (kind: PayKind, amount: number, ref = "") => {
+  const pay = useCallback(async (kind: PayKind, amount: number, ref = "", onMemo?: (m: string) => void) => {
     if (!me || busy) return false;
     setBusy(true);
     const memo = `ZRO-${kind}-${ref}-${me.tgId}-${Math.random().toString(36).slice(2, 10)}`;
+    onMemo?.(memo);
     try {
       await wallet.pay(amount, memo);
     } catch (e) {
