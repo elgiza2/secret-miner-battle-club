@@ -1,1 +1,1 @@
-export const APP_NAME = "ZRO Miner";
+export const APP_NAME = "ZRO";

@@ -7,10 +7,12 @@ import { TILE_ICONS, PAWN } from "@/lib/zro-assets";
 // sideways and 24px up, which leaves the small gaps seen between tiles.
 const STEP_X = 41;
 const STEP_Y = 24;
-const BOTTOM_PAD = 190; // room for the roll button + bottom bar
-const TOP_PAD = 260;
+const BOTTOM_PAD = 160; // room for the roll button + bottom bar
+const TOP_PAD = 200;
 const AHEAD = 70; // how many tiles to render past the pawn
 const BEHIND = 14;
+/** Whole board is drawn this much larger than its logical size. */
+const ZOOM = 1.22;
 
 export type BoardHandle = {
   /** Hops the pawn tile by tile from `from` to `to`. Resolves when it lands. */
@@ -21,7 +23,8 @@ type Props = { position: number; width: number };
 
 const tileX = (i: number, width: number) => width / 2 + (tileColumn(i) - 1.5) * STEP_X;
 
-const Board = forwardRef<BoardHandle, Props>(function Board({ position, width }, ref) {
+const Board = forwardRef<BoardHandle, Props>(function Board({ position, width: screenWidth }, ref) {
+  const width = screenWidth / ZOOM;
   const scrollRef = useRef<HTMLDivElement>(null);
   // While hopping, items up to the pawn's live tile disappear as it passes.
   const [visualPos, setVisualPos] = useState(position);
@@ -43,7 +46,7 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
   const scrollToTile = (i: number, smooth: boolean) => {
     const el = scrollRef.current;
     if (!el) return;
-    const top = tileY(i) - el.clientHeight * 0.62;
+    const top = tileY(i) * ZOOM - el.clientHeight * 0.6;
     el.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
   };
 
@@ -79,7 +82,7 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
   // The board is moved only by the game (scrollTo); players can't drag it.
   return (
     <div ref={scrollRef} className="no-scrollbar fixed inset-0 touch-none select-none overflow-hidden">
-      <div className="relative mx-auto" style={{ width, height }}>
+      <div className="relative mx-auto" style={{ width, height, zoom: ZOOM }}>
         {tiles.map((t) => {
           const z = (100000 - t.i) * 2;
           const icon = t.i > visualPos ? TILE_ICONS[t.kind] : null;

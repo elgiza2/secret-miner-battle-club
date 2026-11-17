@@ -14,6 +14,7 @@ import { Route as GamesRouteImport } from './routes/games'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as SeasonRouteImport } from './routes/season'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as WalletRouteImport } from './routes/wallet'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const StoreRoute = StoreRouteImport.update({
   path: '/store',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WalletRoute = WalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
   '/store': typeof StoreRoute
+  '/wallet': typeof WalletRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
   '/store': typeof StoreRoute
+  '/wallet': typeof WalletRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,15 @@ export interface FileRoutesById {
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
   '/store': typeof StoreRoute
+  '/wallet': typeof WalletRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/games' | '/rewards' | '/season' | '/store'
+  fullPaths: '/' | '/games' | '/rewards' | '/season' | '/store' | '/wallet'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/games' | '/rewards' | '/season' | '/store'
-  id: '__root__' | '/' | '/games' | '/rewards' | '/season' | '/store'
+  to: '/' | '/games' | '/rewards' | '/season' | '/store' | '/wallet'
+  id:
+    '__root__' | '/' | '/games' | '/rewards' | '/season' | '/store' | '/wallet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +87,7 @@ export interface RootRouteChildren {
   RewardsRoute: typeof RewardsRoute
   SeasonRoute: typeof SeasonRoute
   StoreRoute: typeof StoreRoute
+  WalletRoute: typeof WalletRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wallet': {
+      id: '/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +143,7 @@ const rootRouteChildren: RootRouteChildren = {
   RewardsRoute: RewardsRoute,
   SeasonRoute: SeasonRoute,
   StoreRoute: StoreRoute,
+  WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

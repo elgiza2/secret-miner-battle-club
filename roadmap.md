@@ -44,3 +44,6 @@
 - [ ] Games page (ألعاب)
 - [ ] Store page (المتجر)
 - [ ] Save ZRO progress on a server instead of the device (needs decision)
+- [x] Real coin logos, TON merged into GRAM, bigger board, no coin strip, no "Miner"
+- [x] Season (5 GRAM pass), rewards, store (GRAM or ads), wallet (0.05 GRAM verify gate) pages — design only
+- [ ] Wire purchases, verification payment and tasks to the database

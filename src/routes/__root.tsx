@@ -62,7 +62,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover",
       },
       { name: "theme-color", content: "#0b0c1a" },
-      { title: "ZRO Miner" },
+      { title: "ZRO" },
       { name: "description", content: "ارمي النرد، حرك قطعتك، واجمع ZRO." },
     ],
     links: [

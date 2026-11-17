@@ -62,10 +62,10 @@ describe("ZRO board rules", () => {
     expect(applyRoll(s, 1, T0).state.prv).toBe(1);
   });
 
-  it("landing on a TON tile gives 0.5 TON", () => {
-    expect(tileKind(13)).toBe("ton");
+  it("tile 13 is a GRAM tile (TON is now GRAM)", () => {
+    expect(tileKind(13)).toBe("gram");
     const s = { ...initialState(T0), position: 12 };
-    expect(applyRoll(s, 1, T0).state.ton).toBe(0.5);
+    expect(applyRoll(s, 1, T0).state.gram).toBe(1);
   });
 
   it("the spin tile gives nothing yet", () => {
@@ -73,7 +73,6 @@ describe("ZRO board rules", () => {
     const { state } = applyRoll({ ...initialState(T0), position: 13 }, 1, T0);
     expect(state.gram).toBe(0);
     expect(state.prv).toBe(0);
-    expect(state.ton).toBe(0);
     expect(state.zro).toBe(0);
   });
 
@@ -81,5 +80,17 @@ describe("ZRO board rules", () => {
     for (let i = 0; i < 100; i++) {
       expect(Math.abs(tileColumn(i + 1) - tileColumn(i))).toBe(1);
     }
+  });
+});
+
+describe("fees", () => {
+  it("wallet verification costs 0.05 GRAM and the season pass 5 GRAM", async () => {
+    const m = await import("./zro-board");
+    expect(m.VERIFY_FEE_GRAM).toBe(0.05);
+    expect(m.SEASON_PASS_GRAM).toBe(5);
+  });
+  it("a 1 GRAM store item can be had for 100 ads", async () => {
+    const m = await import("./zro-board");
+    expect(m.adsForPrice(1)).toBe(100);
   });
 });

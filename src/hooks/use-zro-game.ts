@@ -22,9 +22,9 @@ function load(userId: number): BoardState {
             energy: num(p.energy, MAX_ENERGY),
             zro: num(p.zro, 0),
             xp: num(p.xp, 0),
-            gram: num(p.gram, 0),
+            gram: num(p.gram, 0) + num(p.ton, 0),
             prv: num(p.prv, 0),
-            ton: num(p.ton, 0),
+            // TON was renamed to GRAM; carry old TON over.
             regenFrom: num(p.regenFrom, now),
           },
           now,

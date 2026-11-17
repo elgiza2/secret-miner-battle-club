@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ShieldCheck } from "lucide-react";
 import Board, { type BoardHandle } from "./Board";
 import ProfileHeader from "./ProfileHeader";
 import RollControls from "./RollControls";
 import DiceOverlay from "./DiceOverlay";
 import { useZroGame } from "@/hooks/use-zro-game";
+import { useWalletVerified } from "@/hooks/use-wallet-verified";
+import { CART, GRAM_ICON } from "@/lib/zro-assets";
+import { VERIFY_FEE_GRAM } from "@/lib/zro-board";
 import { getTelegramUserSync, type TelegramUserInfo } from "@/lib/telegram-user";
 import { APP_NAME } from "@/lib/zro-brand";
 import type { Reward } from "@/lib/zro-board";
@@ -15,7 +19,6 @@ function rewardText(r: Reward): string | null {
   if (r.zro) return `+${r.zro} ZRO`;
   if (r.gram) return `+${r.gram} GRAM`;
   if (r.prv) return `+${r.prv} PRV`;
-  if (r.ton) return `+${r.ton} TON`;
   if (r.energy) return `+${r.energy} طاقة`;
   if (r.xp) return `+${r.xp} XP`;
   return null;
@@ -29,6 +32,8 @@ export default function BoardPage() {
   const [popup, setPopup] = useState<{ text: string; key: number } | null>(null);
   const boardRef = useRef<BoardHandle>(null);
   const game = useZroGame(user?.id ?? null);
+  const verified = useWalletVerified();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const tg = (window as { Telegram?: { WebApp?: { ready?: () => void; expand?: () => void; disableVerticalSwipes?: () => void } } }).Telegram?.WebApp;
@@ -47,7 +52,8 @@ export default function BoardPage() {
     if (busy) return;
     const res = game.roll();
     if (!res) {
-      toast("الطاقة غير كافية — استنى شوية تتشحن");
+      // Out of energy: send them to the store to refill.
+      navigate({ to: "/store" });
       return;
     }
     setBusy(true);
@@ -77,14 +83,14 @@ export default function BoardPage() {
           <h1 dir="ltr" className="text-center font-display text-[18px] font-extrabold uppercase leading-none tracking-[0.08em]">
             {APP_NAME}
           </h1>
-          <ProfileHeader
-            user={user}
-            energy={s?.energy ?? 0}
-            zro={s?.zro ?? 0}
-            gram={s?.gram ?? 0}
-            prv={s?.prv ?? 0}
-            ton={s?.ton ?? 0}
-          />
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <ProfileHeader user={user} energy={s?.energy ?? 0} zro={s?.zro ?? 0} />
+            </div>
+            <Link to="/store" aria-label="المتجر" className="surface-strong pressable grid h-10 w-10 shrink-0 place-items-center rounded-full">
+              <img src={CART} alt="" className="h-7 w-7 object-contain" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -100,12 +106,25 @@ export default function BoardPage() {
               {popup.text}
             </div>
           )}
-          <RollControls
-            energy={s?.energy ?? 0}
-            nextEnergyIn={game.nextEnergyIn}
-            disabled={!s || busy || !game.canRoll}
-            onRoll={onRoll}
-          />
+          {verified === false ? (
+            <div className="px-6">
+              <Link
+                to="/wallet"
+                className="btn-glossy btn-premium pressable flex h-12 items-center justify-center gap-2 rounded-full font-display text-base font-extrabold"
+              >
+                <ShieldCheck className="h-5 w-5" />
+                وثّق محفظتك بـ <span dir="ltr">{VERIFY_FEE_GRAM}</span>
+                <img src={GRAM_ICON} alt="GRAM" className="h-5 w-5 rounded-full" /> عشان تلعب
+              </Link>
+            </div>
+          ) : (
+            <RollControls
+              energy={s?.energy ?? 0}
+              nextEnergyIn={game.nextEnergyIn}
+              disabled={!s || busy || verified !== true}
+              onRoll={onRoll}
+            />
+          )}
         </div>
       </div>
 

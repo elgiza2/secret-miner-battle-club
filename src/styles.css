@@ -3,7 +3,7 @@
 @source "../src";
 @custom-variant dark (&:is(.dark *));
 
-/* ZRO Miner — night board game. Deep navy sky, glossy blue tiles,
+/* ZRO — night board game. Deep navy sky, glossy blue tiles,
    dark glass controls, magenta roll button, lime energy. */
 :root {
   --background: oklch(0.13 0.035 274);
@@ -30,6 +30,12 @@
 
   /* Game-specific */
   --energy: oklch(0.86 0.23 136);
+  --success: oklch(0.72 0.2 150);
+  --invite: oklch(0.5 0.27 266);
+  --gradient-premium: linear-gradient(160deg, oklch(0.72 0.25 330) 0%, oklch(0.55 0.26 326) 100%);
+  --gradient-success: linear-gradient(180deg, oklch(0.76 0.21 148) 0%, oklch(0.6 0.2 150) 100%);
+  --gradient-invite: linear-gradient(180deg, oklch(0.56 0.27 266) 0%, oklch(0.44 0.28 266) 100%);
+  --gradient-claimed: linear-gradient(160deg, oklch(0.36 0.07 175 / 0.9) 0%, oklch(0.24 0.04 220 / 0.9) 100%);
   --ring-avatar: oklch(0.62 0.2 278);
   --online: oklch(0.58 0.22 262);
   --tile-top: oklch(0.43 0.28 266);
@@ -78,6 +84,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-energy: var(--energy);
+  --color-success: var(--success);
+  --color-invite: var(--invite);
   --color-online: var(--online);
   --color-surface: var(--surface);
   --color-surface-strong: var(--surface-strong);
@@ -246,3 +254,15 @@
 @utility pb-tg-safe {
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
 }
+
+@utility bg-premium { background: var(--gradient-premium); }
+@utility bg-claimed { background: var(--gradient-claimed); }
+@utility btn-glossy {
+  position: relative;
+  border: 2px solid oklch(1 0 0 / 0.35);
+  box-shadow: inset 0 2px 0 oklch(1 0 0 / 0.3), 0 8px 20px -10px oklch(0 0 0 / 0.7);
+  &:disabled { opacity: 0.5; }
+}
+@utility btn-premium { background: var(--gradient-roll); }
+@utility btn-success { background: var(--gradient-success); }
+@utility btn-invite { background: var(--gradient-invite); }

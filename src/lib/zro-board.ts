@@ -6,22 +6,28 @@ export const ROLL_COST = 5;
 export const REGEN_MS = 10 * 60 * 1000;
 /** Bonus energy from tiles can go above the max, but never beyond this. */
 export const ENERGY_HARD_CAP = 99;
+/** One-time GRAM payment that verifies a wallet; players can't roll before it. */
+export const VERIFY_FEE_GRAM = 0.05;
+/** Price of the premium season pass, in GRAM. */
+export const SEASON_PASS_GRAM = 5;
+/** Ads a player can watch instead of paying 1 GRAM for a store item. */
+export const ADS_PER_GRAM = 100;
+export const adsForPrice = (gram: number) => Math.ceil(gram * ADS_PER_GRAM);
 
-export type TileKind = "plain" | "bolt" | "zro" | "xp" | "box" | "gram" | "prv" | "ton" | "spin";
+export type TileKind = "plain" | "bolt" | "zro" | "xp" | "box" | "gram" | "prv" | "spin";
 
-export type Reward = { zro: number; xp: number; energy: number; gram: number; prv: number; ton: number };
+export type Reward = { zro: number; xp: number; energy: number; gram: number; prv: number };
 
 export const TILE_REWARDS: Record<TileKind, Reward> = {
-  plain: { zro: 0.01, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0 },
-  bolt: { zro: 0, xp: 0, energy: 5, gram: 0, prv: 0, ton: 0 },
-  zro: { zro: 0.25, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0 },
-  xp: { zro: 0, xp: 25, energy: 0, gram: 0, prv: 0, ton: 0 },
-  box: { zro: 0, xp: 0, energy: 10, gram: 0, prv: 0, ton: 0 },
-  gram: { zro: 0, xp: 0, energy: 0, gram: 1, prv: 0, ton: 0 },
-  prv: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 1, ton: 0 },
-  ton: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0.5 },
+  plain: { zro: 0.01, xp: 0, energy: 0, gram: 0, prv: 0 },
+  bolt: { zro: 0, xp: 0, energy: 5, gram: 0, prv: 0 },
+  zro: { zro: 0.25, xp: 0, energy: 0, gram: 0, prv: 0 },
+  xp: { zro: 0, xp: 25, energy: 0, gram: 0, prv: 0 },
+  box: { zro: 0, xp: 0, energy: 10, gram: 0, prv: 0 },
+  gram: { zro: 0, xp: 0, energy: 0, gram: 1, prv: 0 },
+  prv: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 1 },
   // Spin gives nothing yet — its reward is still to be decided.
-  spin: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0 },
+  spin: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 0 },
 };
 
 // Repeating 12-tile pattern. Consecutive columns always differ by exactly 1,
@@ -30,7 +36,7 @@ const COLS = [1, 2, 3, 2, 1, 0, 1, 2, 1, 0, 1, 0, 1, 2, 1, 0];
 const KINDS: TileKind[] = [
   "plain", "bolt", "plain", "zro", "gram", "xp",
   "plain", "box", "plain", "zro", "bolt", "prv",
-  "plain", "ton", "spin", "plain",
+  "plain", "gram", "spin", "plain",
 ];
 
 export const tileColumn = (i: number) => COLS[i % COLS.length]!;
@@ -43,7 +49,6 @@ export type BoardState = {
   xp: number;
   gram: number;
   prv: number;
-  ton: number;
   /** Timestamp the current regen interval started counting from. */
   regenFrom: number;
 };
@@ -55,7 +60,6 @@ export const initialState = (now: number): BoardState => ({
   xp: 0,
   gram: 0,
   prv: 0,
-  ton: 0,
   regenFrom: now,
 });
 
@@ -105,7 +109,6 @@ export function applyRoll(
       xp: state.xp + reward.xp,
       gram: round(state.gram + reward.gram),
       prv: round(state.prv + reward.prv),
-      ton: round(state.ton + reward.ton),
       regenFrom: wasFull ? now : state.regenFrom,
     },
   };

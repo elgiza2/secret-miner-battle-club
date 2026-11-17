@@ -6,9 +6,9 @@ export const Route = createFileRoute("/games")({
   component: () => <ComingSoon title="ألعاب" icon={GAMEPAD} />,
   head: () => ({
     meta: [
-      { title: "ألعاب — ZRO Miner" },
+      { title: "ألعاب — ZRO" },
       { name: "description", content: "ألعاب صغيرة تكسب منها طاقة وZRO." },
-      { property: "og:title", content: "ألعاب — ZRO Miner" },
+      { property: "og:title", content: "ألعاب — ZRO" },
       { property: "og:description", content: "ألعاب صغيرة تكسب منها طاقة وZRO." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
