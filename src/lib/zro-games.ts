@@ -1,22 +1,35 @@
-// Hand-picked open-source HTML5 games that run without ads, grouped by category.
-export type Game = { id: string; title: string; url: string; cat: GameCat; color: string; emoji: string };
-export type GameCat = "puzzle" | "arcade" | "action" | "racing";
-export const GAME_CATS: { key: GameCat | ""; label: string }[] = [
-  { key: "", label: "الكل" }, { key: "puzzle", label: "ألغاز" }, { key: "arcade", label: "آركيد" },
-  { key: "action", label: "أكشن" }, { key: "racing", label: "سباق" },
+// Free, ad-free browser games from the NEBULA CDN catalog (served by jsDelivr).
+// The slim list lives in public/zro-games.json as [slug, name, category] rows.
+export type GameCat = "puzzle" | "arcade" | "action" | "racing" | "sports" | "strategy";
+export type Game = { id: string; title: string; cat: GameCat };
+export const GAME_CATS: { key: GameCat | ""; label: string; emoji: string }[] = [
+  { key: "", label: "الكل", emoji: "" },
+  { key: "arcade", label: "آركيد", emoji: "👾" }, { key: "puzzle", label: "ألغاز", emoji: "🧩" },
+  { key: "action", label: "أكشن", emoji: "🔫" }, { key: "racing", label: "سباق", emoji: "🏎️" },
+  { key: "sports", label: "رياضة", emoji: "⚽" }, { key: "strategy", label: "استراتيجية", emoji: "♟️" },
 ];
-export const GAMES: Game[] = [
-  { id: "2048", title: "2048", url: "https://play2048.co/", cat: "puzzle", color: "#edc22e", emoji: "🔢" },
-  { id: "hextris", title: "Hextris", url: "https://hextris.github.io/hextris/", cat: "puzzle", color: "#e74c3c", emoji: "⬡" },
-  { id: "astray", title: "Astray", url: "https://wwwtyro.github.io/Astray/", cat: "puzzle", color: "#2e86de", emoji: "🌀" },
-  { id: "clumsy", title: "Clumsy Bird", url: "https://ellisonleao.github.io/clumsy-bird/", cat: "arcade", color: "#54a0ff", emoji: "🐦" },
-  { id: "pacman", title: "Pac-Man", url: "https://pacman.platzh1rsch.ch/", cat: "arcade", color: "#feca57", emoji: "👾" },
-  { id: "tetris", title: "Tetris", url: "https://chvin.github.io/react-tetris/", cat: "arcade", color: "#5f27cd", emoji: "🧱" },
-  { id: "snake", title: "Snake", url: "https://patorjk.com/games/snake/", cat: "arcade", color: "#1dd1a1", emoji: "🐍" },
-  { id: "breakout", title: "Breakout", url: "https://end3r.github.io/Gamedev-Canvas-workshop/lesson10.html", cat: "arcade", color: "#ff6b6b", emoji: "🧱" },
-  { id: "tower", title: "Tower Blocks", url: "https://www.lessmilk.com/tower-game/", cat: "arcade", color: "#ff9f43", emoji: "🏗️" },
-  { id: "spacehuggers", title: "Space Huggers", url: "https://killedbyapixel.github.io/SpaceHuggers/", cat: "action", color: "#341f97", emoji: "🚀" },
-  { id: "underrun", title: "Underrun", url: "https://phoboslab.org/underrun/", cat: "action", color: "#222f3e", emoji: "🔫" },
-  { id: "racer", title: "JS Racer", url: "https://codeincomplete.com/games/racer/v4-final/", cat: "racing", color: "#ee5253", emoji: "🏎️" },
-  { id: "hexgl", title: "HexGL", url: "https://hexgl.bkcore.com/play/", cat: "racing", color: "#0abde3", emoji: "🛸" },
-];
+export const NEBULA_BASE = "https://cdn.jsdelivr.net/gh/GoatTech-42/NEBULACDN@main/games/";
+
+export async function loadGames(): Promise<Game[]> {
+  const r = await fetch("/zro-games.json");
+  const rows = (await r.json()) as [string, string, GameCat][];
+  return rows.map(([id, title, cat]) => ({ id, title, cat }));
+}
+
+/** jsDelivr serves .html as plain text, so the page is fetched and run from srcdoc with a base URL. */
+// Sandboxed games can't touch real storage; give them an in-memory one so they don't crash.
+const SHIM = `<script>(function(){function M(){var d={};return{getItem:function(k){return k in d?d[k]:null},setItem:function(k,v){d[k]=String(v)},removeItem:function(k){delete d[k]},clear:function(){d={}},key:function(i){return Object.keys(d)[i]||null},get length(){return Object.keys(d).length}}}["localStorage","sessionStorage"].forEach(function(n){try{window[n].length}catch(e){Object.defineProperty(window,n,{value:M(),configurable:true})}});try{document.cookie}catch(e){Object.defineProperty(document,"cookie",{get:function(){return""},set:function(){},configurable:true})}})()</script>`;
+
+/** jsDelivr serves .html as plain text, so the page is fetched and run from srcdoc with a base URL. */
+export async function gameHtml(g: Game): Promise<string> {
+  let html = await (await fetch(`${NEBULA_BASE}${g.id}.html`)).text();
+  if (!/<base\s/i.test(html)) html = `<base href="${NEBULA_BASE}">` + html;
+  return SHIM + html;
+}
+
+const PALETTE = ["#ff6b6b", "#feca57", "#1dd1a1", "#54a0ff", "#5f27cd", "#ff9f43", "#0abde3", "#ee5253", "#10ac84", "#f368e0"];
+export function gameColor(id: string) {
+  let h = 0;
+  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return PALETTE[h % PALETTE.length]!;
+}
