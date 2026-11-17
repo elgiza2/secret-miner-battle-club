@@ -87,6 +87,8 @@ function RewardsPage() {
 
   return (
     <ZroPage>
+      <InviteCard link={`https://t.me/zroeobot?start=ref_${inv.data?.tg ?? (typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id ?? "" : "")}`} count={inv.data?.count ?? 0} />
+
       <Section title="سحب الحظ"><LuckyDraw /></Section>
 
       <Section title="المهام">
@@ -105,8 +107,6 @@ function RewardsPage() {
           ))}
         </div>
       </Section>
-
-      {inv.data && <InviteCard link={`https://t.me/zroeobot?start=ref_${inv.data.tg}`} count={inv.data.count} />}
 
       {done.length > 0 && (
         <Section title="المهام المنتهية">

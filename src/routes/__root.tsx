@@ -1,4 +1,6 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { initData } from "@/hooks/use-zro";
+import { zroDraw, zroInvites, zroMe, zroSeason, zroTasks } from "@/lib/zro.functions";
 import {
   Outlet,
   Link,
@@ -117,6 +119,17 @@ function RootComponent() {
 function TelegramChrome() {
   const { pathname } = useLocation();
   const router = useRouter();
+  const qc = useQueryClient();
+  // Warm every page's data once at app open so switching tabs is instant.
+  useEffect(() => {
+    const d = { data: { initData: initData() } };
+    const pre = [
+      ["zro-me", () => zroMe(d)], ["zro-tasks", () => zroTasks(d)], ["zro-invites", () => zroInvites(d)],
+      ["zro-draw", () => zroDraw(d)], ["zro-season", () => zroSeason(d)],
+    ] as const;
+    for (const [k, fn] of pre) qc.prefetchQuery({ queryKey: [k], queryFn: fn as () => Promise<unknown> });
+    for (const r of ["/", "/rewards", "/wallet", "/season", "/games", "/spin", "/store"]) router.preloadRoute({ to: r as any }).catch(() => {});
+  }, [qc, router]);
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
     tg?.ready?.();
