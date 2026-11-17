@@ -21,8 +21,7 @@ function welcome(name: string, fancy: boolean) {
   const reply_markup = {
     inline_keyboard: [
       [btn({ text: "العب الآن", web_app: { url: APP_URL }, style: "success" }, E.rocket)],
-      [btn({ text: "مجتمع ميكاسا", url: "https://t.me/oraien", style: "primary" }, E.gem),
-       btn({ text: "تطبيق ميكاسا", url: "https://t.me/Mixsaabot?startapp", style: "danger" }, E.star)],
+      [btn({ text: "ادعُ صحابك", url: "https://t.me/share/url?url=https://t.me/zroeobot", style: "primary" }, E.gem)],
     ],
   };
   return { text, reply_markup };
@@ -50,17 +49,19 @@ export const Route = createFileRoute("/api/public/zro/bot")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: exists } = await supabaseAdmin.from("zro_users").select("tg_id").eq("tg_id", from.id).maybeSingle();
         if (!exists) {
-          await supabaseAdmin.from("zro_users").insert({
-            tg_id: from.id, username: from.username ?? null, first_name: from.first_name ?? null,
-            ref_by: ref && ref !== from.id ? ref : null,
+          const refBy = ref && ref !== from.id ? ref : null;
+          const ins = await supabaseAdmin.from("zro_users").insert({
+            tg_id: from.id, username: from.username ?? null, first_name: from.first_name ?? null, ref_by: refBy,
           });
+          // Each invited friend pays the inviter 0.005 ZRO (atomic, in the database).
+          if (!ins.error && refBy) await supabaseAdmin.rpc("zro_invite_reward", { _tg: refBy, _amount: 0.005 });
         }
 
         const send = (fancy: boolean) => {
           const w = welcome(esc(from.first_name ?? "بيك"), fancy);
-          return fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          return fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: msg.chat.id, parse_mode: "HTML", ...w }),
+            body: JSON.stringify({ chat_id: msg.chat.id, parse_mode: "HTML", photo: `${APP_URL}/zro-start.jpg`, caption: w.text, reply_markup: w.reply_markup }),
           });
         };
         const r = await send(true);
