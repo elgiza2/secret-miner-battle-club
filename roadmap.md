@@ -70,3 +70,6 @@
 - [ ] Draw: after joining show invite + 'each friend raises your chance'
 - [ ] New games source (modern, ad-free) + ad before each game
 - [ ] 4 languages (ar/en/ru/fa) app + bot, auto by user language, default en
+- [ ] Fix payments across app
+- [ ] Admin panel /101 (@eigiza @torker): stats, payment notifications, tasks CRUD, task-only admins
+- [ ] 15 days of community posts (image+text), send sample to @eigiza (needs community link + @eigiza must /start bot)

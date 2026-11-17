@@ -1,35 +1,74 @@
-// Free, ad-free browser games from the NEBULA CDN catalog (served by jsDelivr).
-// The slim list lives in public/zro-games.json as [slug, name, category] rows.
-export type GameCat = "puzzle" | "arcade" | "action" | "racing" | "sports" | "strategy";
+// Original, ad-free HTML5 games from Mentogames (free to embed, credit required).
+export type GameCat = "arcade" | "racing" | "puzzle" | "sports" | "casual";
 export type Game = { id: string; title: string; cat: GameCat };
-export const GAME_CATS: { key: GameCat | ""; label: string; emoji: string }[] = [
-  { key: "", label: "الكل", emoji: "" },
-  { key: "arcade", label: "آركيد", emoji: "👾" }, { key: "puzzle", label: "ألغاز", emoji: "🧩" },
-  { key: "action", label: "أكشن", emoji: "🔫" }, { key: "racing", label: "سباق", emoji: "🏎️" },
-  { key: "sports", label: "رياضة", emoji: "⚽" }, { key: "strategy", label: "استراتيجية", emoji: "♟️" },
+export const GAME_CATS: { key: GameCat | ""; label: string }[] = [
+  { key: "", label: "الكل" }, { key: "arcade", label: "آركيد" }, { key: "racing", label: "سباق" },
+  { key: "puzzle", label: "ألغاز" }, { key: "sports", label: "رياضة" }, { key: "casual", label: "خفيفة" },
 ];
-export const NEBULA_BASE = "https://cdn.jsdelivr.net/gh/GoatTech-42/NEBULACDN@main/games/";
-
-export async function loadGames(): Promise<Game[]> {
-  const r = await fetch("/zro-games.json");
-  const rows = (await r.json()) as [string, string, GameCat][];
-  return rows.map(([id, title, cat]) => ({ id, title, cat }));
-}
-
-/** jsDelivr serves .html as plain text, so the page is fetched and run from srcdoc with a base URL. */
-// Sandboxed games can't touch real storage; give them an in-memory one so they don't crash.
-const SHIM = `<script>(function(){function M(){var d={};return{getItem:function(k){return k in d?d[k]:null},setItem:function(k,v){d[k]=String(v)},removeItem:function(k){delete d[k]},clear:function(){d={}},key:function(i){return Object.keys(d)[i]||null},get length(){return Object.keys(d).length}}}["localStorage","sessionStorage"].forEach(function(n){try{window[n].length}catch(e){Object.defineProperty(window,n,{value:M(),configurable:true})}});try{document.cookie}catch(e){Object.defineProperty(document,"cookie",{get:function(){return""},set:function(){},configurable:true})}})()</script>`;
-
-/** jsDelivr serves .html as plain text, so the page is fetched and run from srcdoc with a base URL. */
-export async function gameHtml(g: Game): Promise<string> {
-  let html = await (await fetch(`${NEBULA_BASE}${g.id}.html`)).text();
-  if (!/<base\s/i.test(html)) html = `<base href="${NEBULA_BASE}">` + html;
-  return SHIM + html;
-}
-
-const PALETTE = ["#ff6b6b", "#feca57", "#1dd1a1", "#54a0ff", "#5f27cd", "#ff9f43", "#0abde3", "#ee5253", "#10ac84", "#f368e0"];
-export function gameColor(id: string) {
-  let h = 0;
-  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return PALETTE[h % PALETTE.length]!;
-}
+const ROWS: [string, string, GameCat][] = [
+  ["apex-run", "Apex Run", "racing"],
+  ["backfire", "Backfire", "arcade"],
+  ["bladespin", "Bladespin", "arcade"],
+  ["bomb-juggle", "Bomb Juggle", "arcade"],
+  ["bounce-blitz", "Bounce Blitz", "arcade"],
+  ["bowclash", "Bowclash", "arcade"],
+  ["canyon-glide", "Canyon Glide", "arcade"],
+  ["cargo-run", "Cargo Run", "racing"],
+  ["citymento", "CityMento", "arcade"],
+  ["coreguard", "Coreguard", "arcade"],
+  ["crowdsurge", "Crowdsurge", "arcade"],
+  ["cupcake-rush", "Cupcake Rush", "casual"],
+  ["drift-master", "Drift Master", "racing"],
+  ["emberline", "Emberline", "arcade"],
+  ["flip-jump", "Flip Jump", "racing"],
+  ["flip-tunnel", "Flip Tunnel", "arcade"],
+  ["floor-is-falling", "Floor Is Falling", "arcade"],
+  ["get-city-crazy", "GetCityCrazy", "arcade"],
+  ["hill-climb", "Hill Climb", "racing"],
+  ["hookline", "Hookline", "arcade"],
+  ["iron-jab", "Iron Jab", "sports"],
+  ["ironwake", "Ironwake", "arcade"],
+  ["klondike-solitaire", "Klondike Solitaire", "puzzle"],
+  ["laser-grid", "Laser Grid", "arcade"],
+  ["marble-maze", "Marble Maze", "puzzle"],
+  ["mento-nightline", "Mento Nightline", "racing"],
+  ["merge-numbers", "Merge Numbers", "puzzle"],
+  ["minefield", "Minefield", "puzzle"],
+  ["moto-weave", "Moto Weave", "racing"],
+  ["neon-serpent", "Neon Serpent", "arcade"],
+  ["night-valet", "Night Valet", "racing"],
+  ["orbit-hop", "Orbit Hop", "arcade"],
+  ["parking-master", "Parking Master", "racing"],
+  ["pet-salon", "Pet Salon", "casual"],
+  ["pinball-storm", "Pinball Storm", "arcade"],
+  ["powder-rush", "Powder Rush", "sports"],
+  ["prism-pop", "Prism Pop", "puzzle"],
+  ["putt-park", "Putt Park", "sports"],
+  ["reversi", "Reversi", "puzzle"],
+  ["riftcut", "Riftcut", "arcade"],
+  ["ring-out", "Ring Out", "arcade"],
+  ["river-jet", "River Jet", "racing"],
+  ["roofline", "Roofline", "arcade"],
+  ["shatterline", "Shatterline", "arcade"],
+  ["sky-stack", "Sky Stack", "arcade"],
+  ["spot-kick-duel", "Spot Kick Duel", "sports"],
+  ["steady-aim", "Steady Aim", "sports"],
+  ["style-challenge", "Style Challenge", "casual"],
+  ["sudoku", "Sudoku", "puzzle"],
+  ["swarmlight", "Swarmlight", "arcade"],
+  ["sweet-match", "Sweet Match", "puzzle"],
+  ["tank-volley", "Tank Volley", "arcade"],
+  ["tide-pipes", "Tide Pipes", "puzzle"],
+  ["titan-duel", "Titan Duel", "arcade"],
+  ["traffic-escape", "Traffic Escape", "racing"],
+  ["volt-chain", "Volt Chain", "arcade"],
+  ["voltwing", "Voltwing", "arcade"],
+  ["word-vault", "Word Vault", "puzzle"],
+  ["world-tiles", "World Tiles", "puzzle"],
+  ["wreck-arena", "Wreck Arena", "racing"],
+  ["wrecking-swing", "Wrecking Swing", "arcade"],
+  ["wrunner", "Wrunner", "arcade"],
+];
+export const GAMES: Game[] = ROWS.map(([id, title, cat]) => ({ id, title, cat }));
+export const gameThumb = (g: Game) => `https://mentogames.com/thumbs/${g.id}.svg`;
+export const gameUrl = (g: Game) => `https://mentogames.com/embed/${g.id}`;

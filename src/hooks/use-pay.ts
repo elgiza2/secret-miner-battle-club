@@ -15,7 +15,8 @@ export function usePay() {
   const { me, set } = useZro();
   const [busy, setBusy] = useState(false);
   const pay = useCallback(async (kind: PayKind, amount: number, ref = "", onMemo?: (m: string) => void) => {
-    if (!me || busy) return false;
+    if (busy) return false;
+    if (!me) { toast("افتح التطبيق من تيليجرام"); return false; }
     setBusy(true);
     const memo = `ZRO-${kind}-${ref}-${me.tgId}-${Math.random().toString(36).slice(2, 10)}`;
     onMemo?.(memo);
@@ -32,7 +33,10 @@ export function usePay() {
       try {
         const r = await zroPayConfirm({ data: { initData: initData(), memo } });
         if (r.paid) { set(r.me); toast.success("تم الدفع", { id: t }); setBusy(false); return true; }
-      } catch (e) { toast.error((e as Error).message, { id: t }); setBusy(false); return false; }
+      } catch (e) {
+        // Chain lookups can hiccup (rate limits); keep checking unless the payment itself is invalid.
+        if ((e as Error).message === "دفع غير صالح") { toast.error((e as Error).message, { id: t }); setBusy(false); return false; }
+      }
     }
     toast.error("الدفع لسه موصلش، لو اتخصم منك ابعتلنا", { id: t });
     setBusy(false);

@@ -34,6 +34,27 @@ function Amount({ value, icon }: { value: string; icon: string }) {
   );
 }
 
+/** Shown after joining the draw: each invited friend adds one more chance to win. */
+function DrawInvite() {
+  const inv = useQuery({ queryKey: ["zro-invites"], queryFn: () => zroInvites({ data: { initData: initData() } }) });
+  const tg = inv.data?.tg;
+  const share = () => {
+    if (!tg) return;
+    const url = `https://t.me/share/url?url=${encodeURIComponent(`https://t.me/zroeobot?start=ref_${tg}`)}`;
+    const w = (window as any).Telegram?.WebApp;
+    if (w?.openTelegramLink) w.openTelegramLink(url); else window.open(url, "_blank");
+  };
+  return (
+    <div className="relative mt-3 flex items-center gap-3 rounded-[20px] bg-background/70 p-3">
+      <div className="min-w-0 flex-1">
+        <p className="font-display text-sm font-bold">كل صديق بتدعوه بيقرّبك من الفوز</p>
+        <p className="text-xs text-muted-foreground">فرصك: <b dir="ltr" className="text-foreground">{1 + (inv.data?.count ?? 0)}</b></p>
+      </div>
+      <button type="button" onClick={share} className="btn-glossy btn-invite pressable shrink-0 rounded-full px-4 py-2 font-display text-sm font-bold">ادعُ صديق</button>
+    </div>
+  );
+}
+
 function LuckyDraw() {
   const { set } = useZro();
   const q = useQuery({ queryKey: ["zro-draw"], queryFn: () => zroDraw({ data: { initData: initData() } }) });
@@ -61,6 +82,7 @@ function LuckyDraw() {
         className="btn-glossy btn-premium pressable relative mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full font-display text-base font-extrabold disabled:opacity-60">
         {d?.joined ? <><Check className="h-5 w-5" /> أنت مشارك النهارده</> : <>ادخل السحب بـ <span dir="ltr">{DRAW_ENTRY_GRAM}</span> <img src={GRAM_ICON} alt="" className="h-5 w-5 rounded-full" /></>}
       </button>
+      {d?.joined && <DrawInvite />}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { InlineNotices } from "@/lib/notify";
+import { startI18n } from "@/lib/i18n";
 import BottomNav from "@/components/zro/BottomNav";
 
 import appCss from "../styles.css?url";
@@ -91,7 +92,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -130,6 +131,8 @@ function TelegramChrome() {
     for (const [k, fn] of pre) qc.prefetchQuery({ queryKey: [k], queryFn: fn as () => Promise<unknown> });
     for (const r of ["/", "/rewards", "/wallet", "/season", "/games", "/spin", "/store"]) router.preloadRoute({ to: r as any }).catch(() => {});
   }, [qc, router]);
+  // Start after hydration settles so translated text never clashes with server HTML.
+  useEffect(() => { const id = setTimeout(startI18n, 400); return () => clearTimeout(id); }, []);
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
     tg?.ready?.();

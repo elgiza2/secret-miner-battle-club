@@ -39,6 +39,8 @@ export function useTonWallet() {
   const pay = useCallback(async (ton: number, memo: string) => {
     const t = await getUi();
     if (!t.account) { await t.openModal(); throw new Error("اربط محفظتك الأول"); }
+    // @ton/core needs Node's Buffer, which browsers and Telegram don't have.
+    if (!(globalThis as any).Buffer) (globalThis as any).Buffer = (await import("buffer")).Buffer;
     const { beginCell } = await import("@ton/core");
     const payload = beginCell().storeUint(0, 32).storeStringTail(memo).endCell().toBoc().toString("base64");
     await t.sendTransaction({
