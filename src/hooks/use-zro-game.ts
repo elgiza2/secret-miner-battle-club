@@ -1,18 +1,35 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  applyRegen, applyRoll, canRoll, initialState, msUntilNextEnergy, rollDie,
+  applyRegen, applyRoll, canRoll, initialState, MAX_ENERGY, msUntilNextEnergy, rollDie,
   type BoardState, type Reward, type TileKind,
 } from "@/lib/zro-board";
 
 const keyFor = (userId: number) => `zro_board_v1_${userId}`;
+
+const num = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d);
 
 function load(userId: number): BoardState {
   const now = Date.now();
   try {
     const raw = localStorage.getItem(keyFor(userId));
     if (raw) {
-      const s = JSON.parse(raw) as BoardState;
-      if (Number.isFinite(s.position) && Number.isFinite(s.energy)) return applyRegen(s, now);
+      // Older saves have no coin fields, so every field gets a default.
+      const p = JSON.parse(raw) as Record<string, unknown>;
+      if (Number.isFinite(p.position) && Number.isFinite(p.energy)) {
+        return applyRegen(
+          {
+            position: num(p.position, 0),
+            energy: num(p.energy, MAX_ENERGY),
+            zro: num(p.zro, 0),
+            xp: num(p.xp, 0),
+            gram: num(p.gram, 0),
+            prv: num(p.prv, 0),
+            ton: num(p.ton, 0),
+            regenFrom: num(p.regenFrom, now),
+          },
+          now,
+        );
+      }
     }
   } catch {
     /* ignore corrupt storage */

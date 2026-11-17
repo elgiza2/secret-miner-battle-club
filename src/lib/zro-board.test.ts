@@ -51,6 +51,32 @@ describe("ZRO board rules", () => {
     expect(applyRoll(initialState(T0), 5, T0).state.xp).toBe(25);
   });
 
+  it("landing on a GRAM tile gives 1 GRAM", () => {
+    expect(tileKind(4)).toBe("gram");
+    expect(applyRoll(initialState(T0), 4, T0).state.gram).toBe(1);
+  });
+
+  it("landing on a PRV tile gives 1 PRV", () => {
+    expect(tileKind(11)).toBe("prv");
+    const s = { ...initialState(T0), position: 10 };
+    expect(applyRoll(s, 1, T0).state.prv).toBe(1);
+  });
+
+  it("landing on a TON tile gives 0.5 TON", () => {
+    expect(tileKind(13)).toBe("ton");
+    const s = { ...initialState(T0), position: 12 };
+    expect(applyRoll(s, 1, T0).state.ton).toBe(0.5);
+  });
+
+  it("the spin tile gives nothing yet", () => {
+    expect(tileKind(14)).toBe("spin");
+    const { state } = applyRoll({ ...initialState(T0), position: 13 }, 1, T0);
+    expect(state.gram).toBe(0);
+    expect(state.prv).toBe(0);
+    expect(state.ton).toBe(0);
+    expect(state.zro).toBe(0);
+  });
+
   it("path stays connected: neighbouring tiles are one column apart", () => {
     for (let i = 0; i < 100; i++) {
       expect(Math.abs(tileColumn(i + 1) - tileColumn(i))).toBe(1);

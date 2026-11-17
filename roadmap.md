@@ -35,6 +35,9 @@
 
 ## ZRO mining app (new, page by page)
 - [x] Board home page (اللوحة): clean 3D tiles path, real icons, character that moves on dice roll, energy + ZRO balance
+- [x] Side decoration images removed from the board
+- [ ] Tune the tile icons (الصور جوا) to the user's taste
+- [ ] Add a spin tile + its icon
 - [ ] Rewards page (المكافآت)
 - [ ] Season page (الموسم)
 - [ ] Games page (ألعاب)

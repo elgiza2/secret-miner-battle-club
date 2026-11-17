@@ -7,24 +7,30 @@ export const REGEN_MS = 10 * 60 * 1000;
 /** Bonus energy from tiles can go above the max, but never beyond this. */
 export const ENERGY_HARD_CAP = 99;
 
-export type TileKind = "plain" | "bolt" | "zro" | "xp" | "box";
+export type TileKind = "plain" | "bolt" | "zro" | "xp" | "box" | "gram" | "prv" | "ton" | "spin";
 
-export type Reward = { zro: number; xp: number; energy: number };
+export type Reward = { zro: number; xp: number; energy: number; gram: number; prv: number; ton: number };
 
 export const TILE_REWARDS: Record<TileKind, Reward> = {
-  plain: { zro: 0.01, xp: 0, energy: 0 },
-  bolt: { zro: 0, xp: 0, energy: 5 },
-  zro: { zro: 0.25, xp: 0, energy: 0 },
-  xp: { zro: 0, xp: 25, energy: 0 },
-  box: { zro: 0, xp: 0, energy: 10 },
+  plain: { zro: 0.01, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0 },
+  bolt: { zro: 0, xp: 0, energy: 5, gram: 0, prv: 0, ton: 0 },
+  zro: { zro: 0.25, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0 },
+  xp: { zro: 0, xp: 25, energy: 0, gram: 0, prv: 0, ton: 0 },
+  box: { zro: 0, xp: 0, energy: 10, gram: 0, prv: 0, ton: 0 },
+  gram: { zro: 0, xp: 0, energy: 0, gram: 1, prv: 0, ton: 0 },
+  prv: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 1, ton: 0 },
+  ton: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0.5 },
+  // Spin gives nothing yet — its reward is still to be decided.
+  spin: { zro: 0, xp: 0, energy: 0, gram: 0, prv: 0, ton: 0 },
 };
 
 // Repeating 12-tile pattern. Consecutive columns always differ by exactly 1,
 // including across the wrap (last 0 -> first 1), so the path stays connected.
-const COLS = [1, 2, 3, 2, 1, 0, 1, 2, 1, 0, 1, 0];
+const COLS = [1, 2, 3, 2, 1, 0, 1, 2, 1, 0, 1, 0, 1, 2, 1, 0];
 const KINDS: TileKind[] = [
-  "plain", "bolt", "plain", "zro", "plain", "xp",
-  "plain", "box", "plain", "zro", "bolt", "plain",
+  "plain", "bolt", "plain", "zro", "gram", "xp",
+  "plain", "box", "plain", "zro", "bolt", "prv",
+  "plain", "ton", "spin", "plain",
 ];
 
 export const tileColumn = (i: number) => COLS[i % COLS.length]!;
@@ -35,6 +41,9 @@ export type BoardState = {
   energy: number;
   zro: number;
   xp: number;
+  gram: number;
+  prv: number;
+  ton: number;
   /** Timestamp the current regen interval started counting from. */
   regenFrom: number;
 };
@@ -44,6 +53,9 @@ export const initialState = (now: number): BoardState => ({
   energy: MAX_ENERGY,
   zro: 0,
   xp: 0,
+  gram: 0,
+  prv: 0,
+  ton: 0,
   regenFrom: now,
 });
 
@@ -91,6 +103,9 @@ export function applyRoll(
       energy,
       zro: round(state.zro + reward.zro),
       xp: state.xp + reward.xp,
+      gram: round(state.gram + reward.gram),
+      prv: round(state.prv + reward.prv),
+      ton: round(state.ton + reward.ton),
       regenFrom: wasFull ? now : state.regenFrom,
     },
   };

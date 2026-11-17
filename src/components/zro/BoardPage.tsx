@@ -13,6 +13,9 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function rewardText(r: Reward): string | null {
   if (r.zro) return `+${r.zro} ZRO`;
+  if (r.gram) return `+${r.gram} GRAM`;
+  if (r.prv) return `+${r.prv} PRV`;
+  if (r.ton) return `+${r.ton} TON`;
   if (r.energy) return `+${r.energy} طاقة`;
   if (r.xp) return `+${r.xp} XP`;
   return null;
@@ -21,7 +24,7 @@ function rewardText(r: Reward): string | null {
 export default function BoardPage() {
   const [user, setUser] = useState<TelegramUserInfo | null>(null);
   const [width, setWidth] = useState<number | null>(null);
-  const [dice, setDice] = useState<{ value: number | null } | null>(null);
+  const [dice, setDice] = useState<{ target: number; reveal: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [popup, setPopup] = useState<{ text: string; key: number } | null>(null);
   const boardRef = useRef<BoardHandle>(null);
@@ -48,10 +51,10 @@ export default function BoardPage() {
       return;
     }
     setBusy(true);
-    setDice({ value: null });
-    await wait(750);
-    setDice({ value: res.die });
-    await wait(700);
+    setDice({ target: res.die, reveal: false });
+    await wait(1250);
+    setDice({ target: res.die, reveal: true });
+    await wait(650);
     setDice(null);
     await boardRef.current?.hop(res.from, res.landed);
     const text = rewardText(res.reward);
@@ -74,7 +77,14 @@ export default function BoardPage() {
           <h1 dir="ltr" className="text-center font-display text-[18px] font-extrabold uppercase leading-none tracking-[0.08em]">
             {APP_NAME}
           </h1>
-          <ProfileHeader user={user} energy={s?.energy ?? 0} zro={s?.zro ?? 0} />
+          <ProfileHeader
+            user={user}
+            energy={s?.energy ?? 0}
+            zro={s?.zro ?? 0}
+            gram={s?.gram ?? 0}
+            prv={s?.prv ?? 0}
+            ton={s?.ton ?? 0}
+          />
         </div>
       </header>
 
@@ -98,7 +108,7 @@ export default function BoardPage() {
         </div>
       </div>
 
-      {dice && <DiceOverlay value={dice.value} />}
+      {dice && <DiceOverlay target={dice.target} reveal={dice.reveal} />}
     </div>
   );
 }

@@ -205,17 +205,35 @@
   80% { opacity: 1; transform: translate(-50%, -40px) scale(1); }
   100% { opacity: 0; transform: translate(-50%, -56px) scale(0.95); }
 }
-@keyframes dice-shake {
-  0% { transform: rotate(0deg) scale(0.6); }
-  25% { transform: rotate(-18deg) scale(1.05); }
-  50% { transform: rotate(14deg) scale(0.95); }
-  75% { transform: rotate(-8deg) scale(1.03); }
-  100% { transform: rotate(0deg) scale(1); }
-}
 /* Item standing on a tile: its bottom-centre sits on the given point. */
 @utility tile-item { transform: translate(-50%, -100%); }
 @utility animate-reward-rise { animation: reward-rise 1.4s ease-out forwards; }
-@utility animate-dice-shake { animation: dice-shake 0.7s ease-in-out infinite; }
+
+/* ---------- Real 3D dice ---------- */
+@utility dice-stage { perspective: 700px; }
+@utility dice-cube {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+@utility dice-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  border-radius: 14px;
+  background: linear-gradient(150deg, oklch(0.99 0.008 270) 0%, oklch(0.92 0.02 270) 55%, oklch(0.83 0.03 270) 100%);
+  box-shadow: inset 0 0 0 1.5px oklch(1 0 0 / 0.55), inset 0 -7px 14px oklch(0.62 0.06 270 / 0.35);
+}
+@utility dice-pip {
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, oklch(0.4 0.2 274), oklch(0.16 0.12 274));
+  box-shadow: 0 1px 1px oklch(1 0 0 / 0.45);
+}
 
 @utility no-scrollbar {
   scrollbar-width: none;

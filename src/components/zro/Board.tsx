@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { animate, motion, useMotionValue } from "framer-motion";
 import { tileColumn, tileKind, type TileKind } from "@/lib/zro-board";
-import { TILE_ICONS, DECOR, PAWN } from "@/lib/zro-assets";
+import { TILE_ICONS, PAWN } from "@/lib/zro-assets";
 
 // Board geometry (CSS px). Tiles are 66x38 diamonds; neighbours step 41px
 // sideways and 24px up, which leaves the small gaps seen between tiles.
@@ -76,36 +76,10 @@ const Board = forwardRef<BoardHandle, Props>(function Board({ position, width },
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [start, count, width, height]);
 
-  // Side decorations every 24 tiles, alternating sides like the reference.
-  const decor = useMemo(() => {
-    const out: { key: string; src: string; x: number; y: number; size: number }[] = [];
-    for (let base = Math.floor(start / 24) * 24; base < count; base += 24) {
-      DECOR.forEach((d, k) => {
-        const i = base + d.at;
-        if (i < start || i >= count) return;
-        const x = d.side === "left" ? d.inset : width - d.inset - d.size;
-        out.push({ key: `${base}-${k}`, src: d.src, x, y: tileY(i) - d.size / 2, size: d.size });
-      });
-    }
-    return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [start, count, width, height]);
-
   // The board is moved only by the game (scrollTo); players can't drag it.
   return (
     <div ref={scrollRef} className="no-scrollbar fixed inset-0 touch-none select-none overflow-hidden">
       <div className="relative mx-auto" style={{ width, height }}>
-        {decor.map((d) => (
-          <img
-            key={d.key}
-            src={d.src}
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute max-w-none"
-            style={{ left: d.x, top: d.y, width: d.size, height: d.size, zIndex: 1 }}
-          />
-        ))}
-
         {tiles.map((t) => {
           const z = (100000 - t.i) * 2;
           const icon = t.i > visualPos ? TILE_ICONS[t.kind] : null;
