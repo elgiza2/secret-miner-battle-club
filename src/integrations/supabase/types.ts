@@ -5125,6 +5125,208 @@ export type Database = {
           },
         ]
       }
+      zro_draw_entries: {
+        Row: {
+          created_at: string
+          draw_day: string
+          id: string
+          tg_id: number
+        }
+        Insert: {
+          created_at?: string
+          draw_day?: string
+          id?: string
+          tg_id: number
+        }
+        Update: {
+          created_at?: string
+          draw_day?: string
+          id?: string
+          tg_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zro_draw_entries_tg_id_fkey"
+            columns: ["tg_id"]
+            isOneToOne: false
+            referencedRelation: "zro_users"
+            referencedColumns: ["tg_id"]
+          },
+        ]
+      }
+      zro_task_claims: {
+        Row: {
+          created_at: string
+          task_id: string
+          tg_id: number
+        }
+        Insert: {
+          created_at?: string
+          task_id: string
+          tg_id: number
+        }
+        Update: {
+          created_at?: string
+          task_id?: string
+          tg_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zro_task_claims_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "zro_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "zro_task_claims_tg_id_fkey"
+            columns: ["tg_id"]
+            isOneToOne: false
+            referencedRelation: "zro_users"
+            referencedColumns: ["tg_id"]
+          },
+        ]
+      }
+      zro_tasks: {
+        Row: {
+          active: boolean
+          chat_id: string | null
+          created_at: string
+          id: string
+          reward_energy: number
+          sort: number
+          title: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          chat_id?: string | null
+          created_at?: string
+          id?: string
+          reward_energy?: number
+          sort?: number
+          title: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          chat_id?: string | null
+          created_at?: string
+          id?: string
+          reward_energy?: number
+          sort?: number
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      zro_users: {
+        Row: {
+          ads_watched: number
+          created_at: string
+          energy: number
+          first_name: string | null
+          gram: number
+          last_daily: string | null
+          last_share: string | null
+          photo_url: string | null
+          position: number
+          premium: boolean
+          ref_by: number | null
+          regen_from: string
+          spins: number
+          tg_id: number
+          updated_at: string
+          username: string | null
+          verified: boolean
+          wallet_address: string | null
+          xp: number
+          zro: number
+        }
+        Insert: {
+          ads_watched?: number
+          created_at?: string
+          energy?: number
+          first_name?: string | null
+          gram?: number
+          last_daily?: string | null
+          last_share?: string | null
+          photo_url?: string | null
+          position?: number
+          premium?: boolean
+          ref_by?: number | null
+          regen_from?: string
+          spins?: number
+          tg_id: number
+          updated_at?: string
+          username?: string | null
+          verified?: boolean
+          wallet_address?: string | null
+          xp?: number
+          zro?: number
+        }
+        Update: {
+          ads_watched?: number
+          created_at?: string
+          energy?: number
+          first_name?: string | null
+          gram?: number
+          last_daily?: string | null
+          last_share?: string | null
+          photo_url?: string | null
+          position?: number
+          premium?: boolean
+          ref_by?: number | null
+          regen_from?: string
+          spins?: number
+          tg_id?: number
+          updated_at?: string
+          username?: string | null
+          verified?: boolean
+          wallet_address?: string | null
+          xp?: number
+          zro?: number
+        }
+        Relationships: []
+      }
+      zro_withdrawals: {
+        Row: {
+          address: string
+          amount: number
+          coin: string
+          created_at: string
+          id: string
+          status: string
+          tg_id: number
+        }
+        Insert: {
+          address: string
+          amount: number
+          coin: string
+          created_at?: string
+          id?: string
+          status?: string
+          tg_id: number
+        }
+        Update: {
+          address?: string
+          amount?: number
+          coin?: string
+          created_at?: string
+          id?: string
+          status?: string
+          tg_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zro_withdrawals_tg_id_fkey"
+            columns: ["tg_id"]
+            isOneToOne: false
+            referencedRelation: "zro_users"
+            referencedColumns: ["tg_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
