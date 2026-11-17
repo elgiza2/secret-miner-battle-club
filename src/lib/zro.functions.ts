@@ -151,12 +151,27 @@ export const zroBuy = createServerFn({ method: "POST" }).inputValidator((i: unkn
     return dto(await save(sb, row, { ...fromState(s), ads_watched: ads }));
   });
 
+/** Receiving wallet for verification and premium payments. */
+const PAY_TO = "UQA5k2qscmlDz0tYaNMlmhCW5czvc6zMJpB78T4y4GDz9Q5a";
+
+/** True when the receiving wallet got at least `minTon` with comment `memo` (checked on the TON blockchain). */
+async function paidOnChain(memo: string, minTon: number) {
+  const r = await fetch(`https://toncenter.com/api/v2/getTransactions?address=${PAY_TO}&limit=100&archival=true`);
+  if (!r.ok) throw new Error("مقدرناش نتحقق من الدفع دلوقتي، جرب كمان شوية");
+  const j = (await r.json()) as { result?: { in_msg?: { value?: string; message?: string } }[] };
+  return (j.result ?? []).some((t) => t.in_msg?.message?.trim() === memo && Number(t.in_msg?.value ?? 0) >= minTon * 1e9);
+}
+
 export const zroBuyPass = createServerFn({ method: "POST" }).inputValidator((i: Input) => i)
   .handler(async ({ data }) => {
     const { sb, row } = await loadUser(data.initData);
     if (row.premium) return dto(row);
-    const s = spendGram(toState(row), SEASON_PASS_GRAM);
-    return dto(await save(sb, row, { ...fromState(s), premium: true }));
+    // Pay from in-app GRAM if there is enough, otherwise it must be paid on-chain.
+    if (toState(row).gram >= SEASON_PASS_GRAM) {
+      return dto(await save(sb, row, { ...fromState(spendGram(toState(row), SEASON_PASS_GRAM)), premium: true }));
+    }
+    if (!(await paidOnChain(`ZRO-P-${row.tg_id}`, SEASON_PASS_GRAM))) throw new Error("لسه الدفع موصلش، استنى دقيقة وجرب تاني");
+    return dto(await save(sb, row, { premium: true }));
   });
 
 /** Pays the one-time verification fee from the in-app GRAM balance. */
@@ -164,8 +179,8 @@ export const zroVerify = createServerFn({ method: "POST" }).inputValidator((i: u
   .handler(async ({ data }) => {
     const { sb, row } = await loadUser(data.initData);
     if (row.verified) return dto(row);
-    const s = spendGram(toState(row), VERIFY_FEE_GRAM);
-    return dto(await save(sb, row, { ...fromState(s), verified: true, wallet_address: data.wallet ?? row.wallet_address }));
+    if (!(await paidOnChain(`ZRO-V-${row.tg_id}`, VERIFY_FEE_GRAM))) throw new Error("لسه الدفع موصلش، استنى دقيقة وجرب تاني");
+    return dto(await save(sb, row, { verified: true, wallet_address: data.wallet ?? row.wallet_address }));
   });
 
 export const zroSetWallet = createServerFn({ method: "POST" }).inputValidator((i: unknown) => v<{ wallet: string | null }>(i))

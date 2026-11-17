@@ -3,6 +3,7 @@ import { NAV_ITEMS } from "@/lib/zro-assets";
 
 export default function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname === "/welcome") return null;
   return (
     <nav className="pb-tg-safe pointer-events-none fixed inset-x-0 bottom-0 z-[400000] px-4">
       <div className="surface-strong pointer-events-auto mx-auto flex max-w-[430px] items-stretch justify-between rounded-[26px] px-1.5 py-1.5">

@@ -50,3 +50,9 @@ export const NAV_ITEMS = [
   { to: "/games", label: "ألعاب", icon: gamepad },
   { to: "/wallet", label: "المحفظة", icon: wallet },
 ] as const;
+import drawPrize from "@/assets/zro/draw-prize.png";
+import drawBg from "@/assets/zro/draw-bg.jpg";
+export const DRAW_PRIZE = drawPrize;
+export const DRAW_BG = drawBg;
+/** Every app image, so the welcome screen can download and cache them up front. */
+export const ALL_IMAGES: string[] = Object.values(import.meta.glob("@/assets/zro/*.{png,jpg}", { eager: true, import: "default" })) as string[];

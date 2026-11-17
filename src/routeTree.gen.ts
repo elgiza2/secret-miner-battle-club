@@ -16,6 +16,7 @@ import { Route as SeasonRouteImport } from './routes/season'
 import { Route as SpinRouteImport } from './routes/spin'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ApiPublicZroBotRouteImport } from './routes/api/public/zro/bot'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,11 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicZroBotRoute = ApiPublicZroBotRouteImport.update({
   id: '/api/public/zro/bot',
   path: '/api/public/zro/bot',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
+  '/welcome': typeof WelcomeRoute
   '/api/public/zro/bot': typeof ApiPublicZroBotRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
+  '/welcome': typeof WelcomeRoute
   '/api/public/zro/bot': typeof ApiPublicZroBotRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
+  '/welcome': typeof WelcomeRoute
   '/api/public/zro/bot': typeof ApiPublicZroBotRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/spin'
     | '/store'
     | '/wallet'
+    | '/welcome'
     | '/api/public/zro/bot'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/spin'
     | '/store'
     | '/wallet'
+    | '/welcome'
     | '/api/public/zro/bot'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/spin'
     | '/store'
     | '/wallet'
+    | '/welcome'
     | '/api/public/zro/bot'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   SpinRoute: typeof SpinRoute
   StoreRoute: typeof StoreRoute
   WalletRoute: typeof WalletRoute
+  WelcomeRoute: typeof WelcomeRoute
   ApiPublicZroBotRoute: typeof ApiPublicZroBotRoute
 }
 
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/zro/bot': {
       id: '/api/public/zro/bot'
       path: '/api/public/zro/bot'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpinRoute: SpinRoute,
   StoreRoute: StoreRoute,
   WalletRoute: WalletRoute,
+  WelcomeRoute: WelcomeRoute,
   ApiPublicZroBotRoute: ApiPublicZroBotRoute,
 }
 export const routeTree = rootRouteImport

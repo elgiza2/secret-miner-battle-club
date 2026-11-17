@@ -125,10 +125,14 @@ function TelegramChrome() {
     try { if (tg?.isVersionAtLeast?.("8.0")) tg.requestFullscreen?.(); } catch { /* older client */ }
   }, []);
   useEffect(() => {
+    // First visit goes through the welcome screen, which also caches every image.
+    if (pathname !== "/welcome" && !localStorage.getItem("zro_welcomed")) router.navigate({ to: "/welcome" });
+  }, [pathname, router]);
+  useEffect(() => {
     const bb = (window as any).Telegram?.WebApp?.BackButton;
     if (!bb) return;
     const back = () => (window.history.length > 1 ? router.history.back() : router.navigate({ to: "/" }));
-    if (pathname === "/") bb.hide(); else bb.show();
+    if (pathname === "/" || pathname === "/welcome") bb.hide(); else bb.show();
     bb.onClick(back);
     return () => bb.offClick(back);
   }, [pathname, router]);

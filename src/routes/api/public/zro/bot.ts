@@ -61,7 +61,7 @@ export const Route = createFileRoute("/api/public/zro/bot")({
           const w = welcome(esc(from.first_name ?? "بيك"), fancy);
           return fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chat_id: msg.chat.id, parse_mode: "HTML", photo: `${APP_URL}/zro-start.jpg`, caption: w.text, reply_markup: w.reply_markup }),
+            body: JSON.stringify({ chat_id: msg.chat.id, parse_mode: "HTML", photo: "https://project--5ca5574f-0b2d-4147-a25f-736a900a14cd-dev.lovable.app/zro-start.jpg", caption: w.text, reply_markup: w.reply_markup }),
           });
         };
         const r = await send(true);

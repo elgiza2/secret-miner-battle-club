@@ -70,9 +70,20 @@ export const tierReward = (tier: number, track: "free" | "premium"): TierReward 
   const c = track === "free" ? FREE_CYCLE : PREMIUM_CYCLE;
   const base = c[(tier - 1) % c.length]!;
   // Every 10th premium tier doubles.
+  if (track === "premium" && base.kind === "zro") {
+    // Premium ZRO climbs with the level and reaches 0.25 ZRO at the top level.
+    return { kind: "zro", amount: Math.round((0.25 * tier) / SEASON_TIER_COUNT * 1000) / 1000 };
+  }
   return track === "premium" && tier % 10 === 0 ? { ...base, amount: base.amount * 2 } : base;
 };
 export const tierToReward = (t: TierReward): Reward => ({
   zro: t.kind === "zro" ? t.amount : 0, gram: t.kind === "gram" ? t.amount : 0,
   energy: t.kind === "energy" ? t.amount : 0, spins: t.kind === "spins" ? t.amount : 0, xp: 0,
 });
+
+/** Shown daily lucky-draw prize: a random-looking number that stays the same all day. */
+export function dailyDrawPrize(day: string): number {
+  let h = 2166136261;
+  for (const c of day) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return 50 + (Math.abs(h) % 451); // 50..500 GRAM
+}

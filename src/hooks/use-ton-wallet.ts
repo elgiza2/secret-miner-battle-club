@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { TonConnectUI } from "@tonconnect/ui";
 
+export const PAY_TO = "UQA5k2qscmlDz0tYaNMlmhCW5czvc6zMJpB78T4y4GDz9Q5a";
+
 let ui: Promise<TonConnectUI> | null = null;
 function getUi() {
   // Browser-only library: loaded on first use, one shared instance.
@@ -27,5 +29,16 @@ export function useTonWallet() {
   }, []);
   const connect = useCallback(() => { getUi().then((t) => t.openModal()); }, []);
   const disconnect = useCallback(() => { getUi().then((t) => t.disconnect()); }, []);
-  return { address, connect, disconnect };
+  /** Sends `ton` GRAM to the app's receiving wallet with a text comment. */
+  const pay = useCallback(async (ton: number, memo: string) => {
+    const t = await getUi();
+    if (!t.account) { await t.openModal(); throw new Error("اربط محفظتك الأول"); }
+    const { beginCell } = await import("@ton/core");
+    const payload = beginCell().storeUint(0, 32).storeStringTail(memo).endCell().toBoc().toString("base64");
+    await t.sendTransaction({
+      validUntil: Math.floor(Date.now() / 1000) + 600,
+      messages: [{ address: PAY_TO, amount: String(Math.round(ton * 1e9)), payload }],
+    });
+  }, []);
+  return { address, connect, disconnect, pay };
 }

@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 import { act, initData, useZro } from "@/hooks/use-zro";
 import { zroBuyPass } from "@/lib/zro.functions";
+import { useTonWallet } from "@/hooks/use-ton-wallet";
 import { ENERGY_BOX, GIFT, GRAM_ICON, PREMIUM_PASS, SPIN_ICON } from "@/lib/zro-assets";
 import { SEASON_PASS_GRAM } from "@/lib/zro-board";
 
@@ -14,8 +15,14 @@ const PERKS = [
 /** Bottom sheet that sells the premium season pass for GRAM. */
 export default function PremiumSheet({ onClose }: { onClose: () => void }) {
   const { me, set } = useZro();
+  const wallet = useTonWallet();
   const buy = async () => {
-    if (me?.premium) { onClose(); return; }
+    if (me?.premium || !me) { onClose(); return; }
+    if (me.gram < SEASON_PASS_GRAM) {
+      try { await wallet.pay(SEASON_PASS_GRAM, `ZRO-P-${me.tgId}`); } catch (e) { toast((e as Error).message || "اتلغى الدفع"); return; }
+      toast("بنتحقق من الدفع…");
+      await new Promise((r) => setTimeout(r, 15000));
+    }
     const m = await act(() => zroBuyPass({ data: { initData: initData() } }));
     if (m) { set(m); toast("مبروك، بقيت بريميوم"); onClose(); }
   };

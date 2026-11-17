@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDownToLine, ArrowUpFromLine, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { usePrices } from "@/hooks/use-prices";
 import ZroPage, { Section } from "@/components/zro/ZroPage";
 import { act, initData, useZro } from "@/hooks/use-zro";
 import { GRAM_ICON, WALLET_ICON, ZRO_ICON } from "@/lib/zro-assets";
@@ -39,8 +40,14 @@ function WalletPage() {
     }
   }, [wallet.address, me?.wallet]);
 
+  const prices = usePrices();
+  const usd = (me?.zro ?? 0) * prices.zro + (me?.gram ?? 0) * prices.gram;
   const verify = async () => {
+    if (!me) return;
     setBusy(true);
+    try { await wallet.pay(VERIFY_FEE_GRAM, `ZRO-V-${me.tgId}`); } catch (e) { toast((e as Error).message || "اتلغى الدفع"); setBusy(false); return; }
+    toast("بنتحقق من الدفع…");
+    await new Promise((r) => setTimeout(r, 15000));
     const m = await act(() => zroVerify({ data: { initData: initData(), wallet: wallet.address ?? undefined } }));
     if (m) { set(m); toast("اتوثقت محفظتك، تقدر تلعب دلوقتي"); }
     setBusy(false);
@@ -60,11 +67,8 @@ function WalletPage() {
     <ZroPage profile={false}>
       <div className="surface flex flex-col items-center gap-1 rounded-[28px] p-5">
         <p className="text-xs text-muted-foreground">رصيدك</p>
-        <p dir="ltr" className="flex items-center gap-2 font-display text-4xl font-extrabold tabular-nums">
-          {formatZro(me?.zro ?? 0)} <img src={ZRO_ICON} alt="ZRO" className="h-8 w-8 rounded-full" />
-        </p>
-        <p dir="ltr" className="flex items-center gap-1 font-display text-base font-bold text-muted-foreground">
-          {formatZro(me?.gram ?? 0)} <img src={GRAM_ICON} alt="GRAM" className="h-5 w-5 rounded-full" /> GRAM
+        <p dir="ltr" className="font-display text-4xl font-extrabold tabular-nums">
+          ${usd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: usd < 1 ? 4 : 2 })}
         </p>
       </div>
 
@@ -108,8 +112,14 @@ function WalletPage() {
           {coins.map((c) => (
             <div key={c.name} className="flex items-center gap-3 py-3">
               <img src={c.icon} alt={c.name} className="h-10 w-10 rounded-full" />
-              <span dir="ltr" className="flex-1 text-right font-display text-base font-bold">{c.name}</span>
-              <span dir="ltr" className="font-display text-lg font-extrabold tabular-nums">{formatZro(c.value)}</span>
+              <div className="flex-1">
+                <p dir="ltr" className="text-right font-display text-base font-bold">{c.name}</p>
+                <p dir="ltr" className="text-right text-xs text-muted-foreground">${prices[c.key].toFixed(c.key === "zro" ? 4 : 3)}</p>
+              </div>
+              <div className="text-left">
+                <p dir="ltr" className="font-display text-lg font-extrabold tabular-nums">{formatZro(c.value)}</p>
+                <p dir="ltr" className="text-xs text-muted-foreground">${(c.value * prices[c.key]).toFixed(2)}</p>
+              </div>
             </div>
           ))}
         </div>

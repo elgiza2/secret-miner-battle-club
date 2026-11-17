@@ -5820,6 +5820,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      zro_invite_reward: {
+        Args: { _amount: number; _tg: number }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
