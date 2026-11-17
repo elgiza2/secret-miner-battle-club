@@ -1,8 +1,9 @@
 import { Check, Copy, Send } from "lucide-react";
 import { toast } from "sonner";
-import { GIFT, ZRO_ICON } from "@/lib/zro-assets";
+import { ENERGY_ICON, GIFT, ZRO_ICON } from "@/lib/zro-assets";
 
 export const INVITE_REWARD_ZRO = 0.005;
+export const INVITE_REWARD_ENERGY = 10;
 const FRIENDS = [1, 2, 3, 4, 5];
 
 /** Invite friends block: link, share, and a 0.005 ZRO reward per friend. No daily limit. */
@@ -37,9 +38,9 @@ export default function InviteCard({ link, count }: { link: string; count: numbe
             <span className="flex items-center gap-1.5 text-sm font-semibold">
               {count >= n && <Check className="h-4 w-4 text-success" />} ادعُ الصديق {n}
             </span>
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <img src={ZRO_ICON} alt="" className="h-3.5 w-3.5 rounded-full" />
-              <span dir="ltr">+{INVITE_REWARD_ZRO}</span>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-0.5"><img src={ZRO_ICON} alt="" className="h-3.5 w-3.5 rounded-full" /><span dir="ltr">+{INVITE_REWARD_ZRO}</span></span>
+              <span className="flex items-center gap-0.5"><img src={ENERGY_ICON} alt="" className="h-3.5 w-3.5" /><span dir="ltr">+{INVITE_REWARD_ENERGY}</span></span>
             </span>
           </li>
         ))}
@@ -51,7 +52,7 @@ export default function InviteCard({ link, count }: { link: string; count: numbe
         </li>
       </ul>
       <p className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-        دعوت <b className="text-foreground">{count}</b> صديق · كل صديق = <b dir="ltr" className="text-foreground">{INVITE_REWARD_ZRO}</b> ZRO
+        دعوت <b className="text-foreground">{count}</b> صديق · كل صديق = <b dir="ltr" className="text-foreground">{INVITE_REWARD_ZRO}</b> ZRO + <b className="text-foreground">{INVITE_REWARD_ENERGY}</b> طاقة
       </p>
     </div>
   );

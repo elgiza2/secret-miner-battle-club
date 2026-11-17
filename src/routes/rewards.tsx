@@ -47,7 +47,7 @@ function LuckyDraw() {
   };
   const d = q.data;
   return (
-    <div className="relative overflow-hidden rounded-[28px] border border-border p-4" style={{ backgroundImage: `url(${DRAW_BG})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+    <div className="relative overflow-hidden rounded-[28px] border border-border p-4" style={{ backgroundImage: `linear-gradient(270deg, var(--background) 30%, transparent 75%), url(${DRAW_BG})`, backgroundSize: "cover", backgroundPosition: "left center" }}>
       <div className="relative flex items-center gap-4">
         <div className="min-w-0 flex-1 py-4">
           <p className="text-xs text-muted-foreground">جائزة سحب النهارده</p>
