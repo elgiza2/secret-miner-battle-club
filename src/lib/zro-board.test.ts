@@ -36,9 +36,13 @@ describe("ZRO board rules", () => {
     expect(msUntilNextEnergy(initialState(T0), T0)).toBeNull();
   });
 
-  it("landing on a ZRO tile gives 0.25 ZRO", () => {
+  it("a plain tile gives 0.001 ZRO", () => {
+    expect(applyRoll(initialState(T0), 2, T0).state.zro).toBe(0.001);
+  });
+
+  it("landing on a ZRO tile gives 0.005 ZRO", () => {
     expect(tileKind(3)).toBe("zro");
-    expect(applyRoll(initialState(T0), 3, T0).state.zro).toBe(0.25);
+    expect(applyRoll(initialState(T0), 3, T0).state.zro).toBe(0.005);
   });
 
   it("landing on a lightning tile gives 5 energy back", () => {
@@ -46,34 +50,17 @@ describe("ZRO board rules", () => {
     expect(applyRoll(initialState(T0), 1, T0).state.energy).toBe(25);
   });
 
-  it("landing on an XP tile gives 25 XP", () => {
-    expect(tileKind(5)).toBe("xp");
-    expect(applyRoll(initialState(T0), 5, T0).state.xp).toBe(25);
-  });
-
-  it("landing on a GRAM tile gives 1 GRAM", () => {
+  it("a GRAM tile never pays more than 0.01 GRAM", () => {
     expect(tileKind(4)).toBe("gram");
-    expect(applyRoll(initialState(T0), 4, T0).state.gram).toBe(1);
+    const g = applyRoll(initialState(T0), 4, T0).state.gram;
+    expect(g).toBeGreaterThan(0);
+    expect(g).toBeLessThanOrEqual(0.01);
   });
 
-  it("landing on a PRV tile gives 1 PRV", () => {
-    expect(tileKind(11)).toBe("prv");
-    const s = { ...initialState(T0), position: 10 };
-    expect(applyRoll(s, 1, T0).state.prv).toBe(1);
-  });
-
-  it("tile 13 is a GRAM tile (TON is now GRAM)", () => {
-    expect(tileKind(13)).toBe("gram");
-    const s = { ...initialState(T0), position: 12 };
-    expect(applyRoll(s, 1, T0).state.gram).toBe(1);
-  });
-
-  it("the spin tile gives nothing yet", () => {
-    expect(tileKind(14)).toBe("spin");
-    const { state } = applyRoll({ ...initialState(T0), position: 13 }, 1, T0);
-    expect(state.gram).toBe(0);
-    expect(state.prv).toBe(0);
-    expect(state.zro).toBe(0);
+  it("the spin tile gives one extra wheel spin", () => {
+    expect(tileKind(11)).toBe("spin");
+    const { state } = applyRoll({ ...initialState(T0), position: 10 }, 1, T0);
+    expect(state.spins).toBe(2);
   });
 
   it("path stays connected: neighbouring tiles are one column apart", () => {
@@ -88,6 +75,10 @@ describe("fees", () => {
     const m = await import("./zro-board");
     expect(m.VERIFY_FEE_GRAM).toBe(0.05);
     expect(m.SEASON_PASS_GRAM).toBe(5);
+  });
+  it("withdrawals need at least 2 coins", async () => {
+    const m = await import("./zro-board");
+    expect(m.MIN_WITHDRAW).toBe(2);
   });
   it("a 1 GRAM store item can be had for 100 ads", async () => {
     const m = await import("./zro-board");

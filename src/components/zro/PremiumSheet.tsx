@@ -1,5 +1,7 @@
 import { X } from "lucide-react";
 import { toast } from "sonner";
+import { act, initData, useZro } from "@/hooks/use-zro";
+import { zroBuyPass } from "@/lib/zro.functions";
 import { ENERGY_BOX, GIFT, GRAM_ICON, PREMIUM_PASS, SPIN_ICON } from "@/lib/zro-assets";
 import { SEASON_PASS_GRAM } from "@/lib/zro-board";
 
@@ -11,6 +13,12 @@ const PERKS = [
 
 /** Bottom sheet that sells the premium season pass for GRAM. */
 export default function PremiumSheet({ onClose }: { onClose: () => void }) {
+  const { me, set } = useZro();
+  const buy = async () => {
+    if (me?.premium) { onClose(); return; }
+    const m = await act(() => zroBuyPass({ data: { initData: initData() } }));
+    if (m) { set(m); toast("مبروك، بقيت بريميوم"); onClose(); }
+  };
   return (
     <div className="fixed inset-0 z-[500000] flex items-end bg-background/70 backdrop-blur-[2px] animate-in fade-in duration-200" onClick={onClose}>
       <div
@@ -22,7 +30,7 @@ export default function PremiumSheet({ onClose }: { onClose: () => void }) {
         </button>
         <img src={PREMIUM_PASS} alt="" className="h-28 w-28 object-contain" />
         <h2 className="font-display text-2xl font-extrabold">احصل على تصريح بريميوم</h2>
-        <p className="text-sm text-muted-foreground">بريميوم لمدة 30 يوم</p>
+        <p className="text-sm text-muted-foreground">بريميوم الموسم كله</p>
         <div className="bg-premium w-full rounded-[24px] p-3">
           <p className="mb-2 text-center font-display text-sm font-bold">ما ستحصل عليه</p>
           <div className="grid grid-cols-3 gap-2">
@@ -36,7 +44,7 @@ export default function PremiumSheet({ onClose }: { onClose: () => void }) {
         </div>
         <button
           type="button"
-          onClick={() => toast("الدفع هيتفعل لما نربط المحفظة")}
+          onClick={buy}
           className="btn-glossy btn-premium pressable mb-4 flex h-12 w-full items-center justify-center gap-2 rounded-full font-display text-lg font-extrabold"
         >
           شراء <span dir="ltr">{SEASON_PASS_GRAM}</span>

@@ -1,14 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownToLine, ArrowUpFromLine, ShieldCheck } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import ZroPage, { Section } from "@/components/zro/ZroPage";
-import { useZroGame } from "@/hooks/use-zro-game";
-import { useWalletVerified } from "@/hooks/use-wallet-verified";
-import { getTelegramUserSync } from "@/lib/telegram-user";
-import { GRAM_ICON, PRV_ICON, WALLET_ICON, ZRO_ICON } from "@/lib/zro-assets";
-import { VERIFY_FEE_GRAM } from "@/lib/zro-board";
+import { act, initData, useZro } from "@/hooks/use-zro";
+import { GRAM_ICON, WALLET_ICON, ZRO_ICON } from "@/lib/zro-assets";
+import { MIN_WITHDRAW, VERIFY_FEE_GRAM } from "@/lib/zro-board";
 import { formatZro } from "@/lib/zro-format";
+import { zroSetWallet, zroVerify, zroWithdraw } from "@/lib/zro.functions";
 import { shortAddress, useTonWallet } from "@/hooks/use-ton-wallet";
 
 export const Route = createFileRoute("/wallet")({
@@ -16,9 +15,9 @@ export const Route = createFileRoute("/wallet")({
   head: () => ({
     meta: [
       { title: "المحفظة — ZRO" },
-      { name: "description", content: "رصيدك من ZRO وGRAM وPRV، ووثّق محفظتك عشان تبدأ تلعب." },
+      { name: "description", content: "رصيدك من ZRO وGRAM، وسحب وإيداع وتوثيق المحفظة." },
       { property: "og:title", content: "المحفظة — ZRO" },
-      { property: "og:description", content: "رصيدك من ZRO وGRAM وPRV، ووثّق محفظتك عشان تبدأ تلعب." },
+      { property: "og:description", content: "رصيدك من ZRO وGRAM، وسحب وإيداع وتوثيق المحفظة." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -26,45 +25,75 @@ export const Route = createFileRoute("/wallet")({
 });
 
 function WalletPage() {
-  const [uid, setUid] = useState<number | null>(null);
-  useEffect(() => setUid(getTelegramUserSync().id), []);
-  const s = useZroGame(uid).state;
-  const verified = useWalletVerified();
-  const coins = [
-    { name: "ZRO", icon: ZRO_ICON, value: s?.zro ?? 0 },
-    { name: "GRAM", icon: GRAM_ICON, value: s?.gram ?? 0 },
-    { name: "PRV", icon: PRV_ICON, value: s?.prv ?? 0 },
-  ];
+  const { me, set } = useZro();
   const wallet = useTonWallet();
-  const soon = () => toast("الدفع هيتفعل لما نربط المحفظة");
+  const [sheet, setSheet] = useState(false);
+  const [coin, setCoin] = useState<"zro" | "gram">("zro");
+  const [amount, setAmount] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  // Save the connected wallet address on the player's account.
+  useEffect(() => {
+    if (wallet.address && me && wallet.address !== me.wallet) {
+      act(() => zroSetWallet({ data: { initData: initData(), wallet: wallet.address } })).then((m) => m && set(m));
+    }
+  }, [wallet.address, me?.wallet]);
+
+  const verify = async () => {
+    setBusy(true);
+    const m = await act(() => zroVerify({ data: { initData: initData(), wallet: wallet.address ?? undefined } }));
+    if (m) { set(m); toast("اتوثقت محفظتك، تقدر تلعب دلوقتي"); }
+    setBusy(false);
+  };
+  const withdraw = async () => {
+    setBusy(true);
+    const m = await act(() => zroWithdraw({ data: { initData: initData(), coin, amount: Number(amount) } }));
+    if (m) { set(m); setSheet(false); setAmount(""); toast("طلب السحب اتسجل"); }
+    setBusy(false);
+  };
+  const coins = [
+    { key: "zro" as const, name: "ZRO", icon: ZRO_ICON, value: me?.zro ?? 0 },
+    { key: "gram" as const, name: "GRAM", icon: GRAM_ICON, value: me?.gram ?? 0 },
+  ];
 
   return (
-    <ZroPage title="المحفظة">
+    <ZroPage profile={false}>
+      <div className="surface flex flex-col items-center gap-1 rounded-[28px] p-5">
+        <p className="text-xs text-muted-foreground">رصيدك</p>
+        <p dir="ltr" className="flex items-center gap-2 font-display text-4xl font-extrabold tabular-nums">
+          {formatZro(me?.zro ?? 0)} <img src={ZRO_ICON} alt="ZRO" className="h-8 w-8 rounded-full" />
+        </p>
+        <p dir="ltr" className="flex items-center gap-1 font-display text-base font-bold text-muted-foreground">
+          {formatZro(me?.gram ?? 0)} <img src={GRAM_ICON} alt="GRAM" className="h-5 w-5 rounded-full" /> GRAM
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
-        <button type="button" onClick={soon} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
-          <ArrowDownToLine className="h-5 w-5" /> إيداع
-        </button>
-        <button type="button" onClick={soon} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
+        <button type="button" onClick={() => setSheet(true)} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
           <ArrowUpFromLine className="h-5 w-5" /> سحب
         </button>
+        <button type="button" onClick={() => toast("الإيداع هيتفعل أول ما نضيف عنوان محفظة الاستلام")} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
+          <ArrowDownToLine className="h-5 w-5" /> إيداع
+        </button>
       </div>
-      {verified === false && (
+
+      {me && !me.verified && (
         <div className="bg-premium flex flex-col gap-3 rounded-[26px] p-4">
           <div className="flex items-center gap-3">
             <ShieldCheck className="h-10 w-10 shrink-0" />
             <div>
               <p className="font-display text-lg font-extrabold">وثّق محفظتك عشان تلعب</p>
-              <p className="text-xs">ادفع مرة واحدة بس، وبعدها تقدر ترمي النرد وتجمع المكافآت.</p>
+              <p className="text-xs">مرة واحدة بس، وبعدها تقدر ترمي النرد.</p>
             </div>
           </div>
-          <button type="button" onClick={soon} className="btn-glossy btn-premium pressable flex h-12 items-center justify-center gap-2 rounded-full font-display text-lg font-extrabold">
-            ادفع <span dir="ltr">{VERIFY_FEE_GRAM}</span> <img src={GRAM_ICON} alt="GRAM" className="h-6 w-6 rounded-full" /> GRAM للتوثيق
+          <button type="button" disabled={busy} onClick={verify} className="btn-glossy btn-premium pressable flex h-12 items-center justify-center gap-2 rounded-full font-display text-lg font-extrabold">
+            ادفع <span dir="ltr">{VERIFY_FEE_GRAM}</span> <img src={GRAM_ICON} alt="GRAM" className="h-6 w-6 rounded-full" /> GRAM
           </button>
         </div>
       )}
 
       <div className="surface flex items-center gap-3 rounded-[26px] p-4">
-        <img src={WALLET_ICON} alt="" className="h-14 w-14 object-contain" />
+        <img src={WALLET_ICON} alt="" className="h-12 w-12 object-contain" />
         <div className="min-w-0 flex-1">
           <p className="text-xs text-muted-foreground">محفظة GRAM</p>
           <p dir="ltr" className="truncate text-right font-display text-base font-bold">{wallet.address ? shortAddress(wallet.address) : "غير متصلة"}</p>
@@ -74,7 +103,7 @@ function WalletPage() {
         </button>
       </div>
 
-      <Section title="رصيدك">
+      <Section title="العملات">
         <div className="surface flex flex-col divide-y divide-border rounded-[24px] px-4">
           {coins.map((c) => (
             <div key={c.name} className="flex items-center gap-3 py-3">
@@ -86,6 +115,26 @@ function WalletPage() {
         </div>
       </Section>
 
+      {sheet && (
+        <div className="fixed inset-0 z-[500000] flex items-end bg-background/70" onClick={() => setSheet(false)}>
+          <div className="pb-tg-safe mx-auto flex w-full max-w-[430px] flex-col gap-3 rounded-t-[30px] border-t border-border bg-background p-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="font-display text-xl font-extrabold">سحب</p>
+              <button type="button" aria-label="إغلاق" onClick={() => setSheet(false)} className="surface pressable grid h-9 w-9 place-items-center rounded-full"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {coins.map((c) => (
+                <button key={c.key} type="button" onClick={() => setCoin(c.key)} className={`pressable flex h-12 items-center justify-center gap-2 rounded-2xl font-display font-bold ${coin === c.key ? "bg-foreground text-background" : "surface"}`}>
+                  <img src={c.icon} alt="" className="h-6 w-6 rounded-full" /> {c.name}
+                </button>
+              ))}
+            </div>
+            <input dir="ltr" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={`${MIN_WITHDRAW}`} className="surface h-12 rounded-2xl px-4 text-right font-display text-lg font-bold outline-none" />
+            <p className="text-xs text-muted-foreground">أقل سحب <b dir="ltr">{MIN_WITHDRAW}</b> عملة. بيوصل على المحفظة المربوطة.</p>
+            <button type="button" disabled={busy} onClick={withdraw} className="btn-glossy btn-premium pressable mb-2 h-12 rounded-full font-display text-lg font-extrabold">اسحب</button>
+          </div>
+        </div>
+      )}
     </ZroPage>
   );
 }

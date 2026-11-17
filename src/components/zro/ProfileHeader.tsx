@@ -21,7 +21,6 @@ export default function ProfileHeader({ user, energy, zro }: Props) {
               </div>
             )}
           </div>
-          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-online" />
         </div>
         <div className="min-w-0">
           <p className="truncate font-display text-sm font-bold leading-tight">{name || "…"}</p>

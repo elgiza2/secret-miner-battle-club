@@ -7,7 +7,6 @@ import gamepad from "@/assets/zro/gamepad.png";
 import gift from "@/assets/zro/gift.png";
 import gramCoin from "@/assets/zro/gram-coin.png";
 import pawn from "@/assets/zro/pawn.png";
-import prvCoin from "@/assets/zro/prv-coin.png";
 import season from "@/assets/zro/season.png";
 import spinWheel from "@/assets/zro/spin.png";
 import wallet from "@/assets/zro/wallet.png";
@@ -20,7 +19,6 @@ import type { TileKind } from "@/lib/zro-board";
 export const ENERGY_ICON = bolt;
 export const ZRO_ICON = zroCoin;
 export const GRAM_ICON = gramCoin;
-export const PRV_ICON = prvCoin;
 export const WALLET_ICON = wallet;
 export const PREMIUM_PASS = premiumPass;
 export const ENERGY_BOX = energyBox;
@@ -42,7 +40,6 @@ export const TILE_ICONS: Record<TileKind, { src: string; alt: string; size: numb
   xp: { src: xp, alt: "XP", size: 42, lift: 10 },
   box: { src: energyBox, alt: "صندوق طاقة", size: 42, lift: 4 },
   gram: { src: gramCoin, alt: "GRAM", size: 32, lift: 4 },
-  prv: { src: prvCoin, alt: "PRV", size: 32, lift: 4 },
   spin: { src: spinWheel, alt: "سبين", size: 40, lift: 6 },
 };
 

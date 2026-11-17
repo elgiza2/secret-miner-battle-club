@@ -1,92 +1,100 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { CheckCircle2, Lock } from "lucide-react";
+import { toast } from "sonner";
 import ZroPage from "@/components/zro/ZroPage";
 import PremiumSheet from "@/components/zro/PremiumSheet";
-import { ENERGY_ICON, GRAM_ICON, PREMIUM_PASS, ZRO_ICON } from "@/lib/zro-assets";
+import { act, initData, useZro } from "@/hooks/use-zro";
+import { ENERGY_ICON, GRAM_ICON, PREMIUM_PASS, SPIN_ICON, ZRO_ICON } from "@/lib/zro-assets";
 import { SEASON_PASS_GRAM } from "@/lib/zro-board";
-import { SEASON_TIER_COUNT } from "@/lib/zro-rewards";
+import { SEASON_TIER_COUNT, XP_PER_TIER, tierReward, type TierReward } from "@/lib/zro-rewards";
+import { zroSeason } from "@/lib/zro.functions";
 
-// Sample tiers for the design stage; real progress comes later from the database.
-const FREE_CYCLE = [
-  { icon: ZRO_ICON, amount: "0.5" }, { icon: ENERGY_ICON, amount: "50" }, { icon: ZRO_ICON, amount: "1" }, { icon: ENERGY_ICON, amount: "75" },
-];
-const PREMIUM_CYCLE = [
-  { icon: ZRO_ICON, amount: "2" }, { icon: ENERGY_ICON, amount: "100" }, { icon: GRAM_ICON, amount: "0.2" }, { icon: ZRO_ICON, amount: "5" },
-];
-const TIERS = Array.from({ length: SEASON_TIER_COUNT }, (_, i) => ({
-  free: FREE_CYCLE[i % FREE_CYCLE.length],
-  premium: PREMIUM_CYCLE[i % PREMIUM_CYCLE.length],
-  claimed: i < 2,
-}));
+const ICON: Record<TierReward["kind"], string> = { zro: ZRO_ICON, gram: GRAM_ICON, energy: ENERGY_ICON, spins: SPIN_ICON };
 
 export const Route = createFileRoute("/season")({
   component: SeasonPage,
   head: () => ({
     meta: [
       { title: "الموسم — ZRO" },
-      { name: "description", content: "تذكرة الموسم وجوائز المستويات في ZRO، والبريميوم بـ 5 GRAM." },
+      { name: "description", content: "30 مستوى أساسي و30 بريميوم، والبريميوم بـ 5 GRAM." },
       { property: "og:title", content: "الموسم — ZRO" },
-      { property: "og:description", content: "تذكرة الموسم وجوائز المستويات في ZRO، والبريميوم بـ 5 GRAM." },
+      { property: "og:description", content: "30 مستوى أساسي و30 بريميوم، والبريميوم بـ 5 GRAM." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
 });
 
-function Cell({ icon, amount, state }: { icon: string; amount: string; state: "claimed" | "locked" | "premium" }) {
-  const bg = state === "claimed" ? "bg-claimed" : state === "premium" ? "bg-foreground/10" : "bg-foreground/5";
+type CellState = "claimed" | "ready" | "locked" | "premium";
+function Cell({ r, state, onClaim }: { r: TierReward; state: CellState; onClaim: () => void }) {
+  const bg = state === "claimed" ? "bg-claimed" : state === "ready" ? "bg-success/20" : "bg-foreground/5";
   return (
-    <div className={`relative flex h-[132px] flex-col items-center justify-center gap-1 rounded-[22px] border border-border ${bg}`}>
-      {state !== "claimed" && <Lock className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />}
-      <img src={icon} alt="" className={`h-12 w-12 rounded-full object-contain ${state === "claimed" ? "" : "opacity-60"}`} />
-      <span dir="ltr" className="font-display text-base font-bold">{amount}</span>
-      {state === "claimed" ? (
-        <span className="flex items-center gap-1 text-xs text-success"><CheckCircle2 className="h-3.5 w-3.5" /> تم الاستلام</span>
-      ) : state === "premium" ? (
-        <span className="rounded-full border border-border px-2 py-0.5 text-[10px]">احصل على بريميوم</span>
-      ) : null}
-    </div>
+    <button type="button" disabled={state !== "ready"} onClick={onClaim} className={`relative flex h-[120px] flex-col items-center justify-center gap-1 rounded-[22px] border border-border ${bg}`}>
+      {(state === "locked" || state === "premium") && <Lock className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />}
+      <img src={ICON[r.kind]} alt="" className={`h-11 w-11 rounded-full object-contain ${state === "locked" || state === "premium" ? "opacity-60" : ""}`} />
+      <span dir="ltr" className="font-display text-base font-bold">{r.amount}</span>
+      {state === "claimed" && <span className="flex items-center gap-1 text-xs text-success"><CheckCircle2 className="h-3.5 w-3.5" /> تم</span>}
+      {state === "ready" && <span className="rounded-full bg-success px-2 py-0.5 text-[11px] font-bold text-background">استلم</span>}
+    </button>
   );
 }
 
 function SeasonPage() {
+  const { me, set } = useZro();
+  const qc = useQueryClient();
   const [sheet, setSheet] = useState(false);
+  const q = useQuery({ queryKey: ["zro-season"], queryFn: () => zroSeason({ data: { initData: initData() } }) });
+  const claims = new Set(q.data?.claims ?? []);
+  const xp = me?.xp ?? 0;
+  const level = Math.min(SEASON_TIER_COUNT, Math.floor(xp / XP_PER_TIER));
+  const pct = level >= SEASON_TIER_COUNT ? 100 : ((xp % XP_PER_TIER) / XP_PER_TIER) * 100;
+
+  const claim = async (tier: number, track: "free" | "premium") => {
+    const r = await act(() => zroSeason({ data: { initData: initData(), claim: { tier, track } } }));
+    if (r) { set(r.me); qc.setQueryData(["zro-season"], r); toast("اتضافت المكافأة"); }
+  };
+  const stateOf = (tier: number, track: "free" | "premium"): CellState => {
+    if (claims.has(`${track}:${tier}`)) return "claimed";
+    if (track === "premium" && !me?.premium) return "premium";
+    return tier <= level ? "ready" : "locked";
+  };
+  const tiers = Array.from({ length: SEASON_TIER_COUNT }, (_, i) => i + 1);
+
   return (
-    <ZroPage title="مكافآت الموسم">
+    <ZroPage>
       <div className="surface flex flex-col gap-2 rounded-[24px] p-4">
         <div className="flex items-center justify-between">
           <span dir="ltr" className="font-display text-xl font-extrabold">Season Pass</span>
-          <span className="text-xs text-muted-foreground">مكافآت الموسم 2 / {SEASON_TIER_COUNT}</span>
+          <span className="text-xs text-muted-foreground">المستوى {level} / {SEASON_TIER_COUNT}</span>
         </div>
         <div className="h-2.5 overflow-hidden rounded-full bg-foreground/10">
-          <div className="btn-premium h-full w-[62%] rounded-full" />
+          <div className="btn-premium h-full rounded-full" style={{ width: `${pct}%` }} />
         </div>
-        <span dir="ltr" className="text-right text-xs text-muted-foreground"><b className="text-foreground">130</b> / 210 XP</span>
+        <span dir="ltr" className="text-right text-xs text-muted-foreground"><b className="text-foreground">{xp % XP_PER_TIER}</b> / {XP_PER_TIER} XP</span>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-premium flex flex-col gap-2 rounded-[26px] p-2">
           <p className="py-1 text-center font-display text-lg font-extrabold">بريميوم</p>
-          {TIERS.map((t, i) => <Cell key={i} icon={t.premium.icon} amount={t.premium.amount} state="premium" />)}
+          {tiers.map((t) => <Cell key={t} r={tierReward(t, "premium")} state={stateOf(t, "premium")} onClaim={() => claim(t, "premium")} />)}
         </div>
         <div className="surface flex flex-col gap-2 rounded-[26px] p-2">
           <p className="py-1 text-center font-display text-lg font-extrabold">أساسي</p>
-          {TIERS.map((t, i) => <Cell key={i} icon={t.free.icon} amount={t.free.amount} state={t.claimed ? "claimed" : "locked"} />)}
+          {tiers.map((t) => <Cell key={t} r={tierReward(t, "free")} state={stateOf(t, "free")} onClaim={() => claim(t, "free")} />)}
         </div>
       </div>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-[92px] z-[350000] px-6">
-        <button
-          type="button"
-          onClick={() => setSheet(true)}
-          className="btn-glossy btn-premium pressable pointer-events-auto mx-auto flex h-12 w-full max-w-[400px] items-center justify-center gap-2 rounded-full font-display text-lg font-extrabold"
-        >
-          <img src={PREMIUM_PASS} alt="" className="h-7 w-7" />
-          فتح المكافآت بـ <span dir="ltr">{SEASON_PASS_GRAM}</span>
-          <img src={GRAM_ICON} alt="GRAM" className="h-5 w-5 rounded-full" />
-        </button>
-      </div>
+      {!me?.premium && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-[92px] z-[350000] px-6">
+          <button type="button" onClick={() => setSheet(true)} className="btn-glossy btn-premium pressable pointer-events-auto mx-auto flex h-12 w-full max-w-[400px] items-center justify-center gap-2 rounded-full font-display text-lg font-extrabold">
+            <img src={PREMIUM_PASS} alt="" className="h-7 w-7" />
+            فتح البريميوم بـ <span dir="ltr">{SEASON_PASS_GRAM}</span>
+            <img src={GRAM_ICON} alt="GRAM" className="h-5 w-5 rounded-full" />
+          </button>
+        </div>
+      )}
       {sheet && <PremiumSheet onClose={() => setSheet(false)} />}
     </ZroPage>
   );

@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -75,7 +76,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap",
       },
     ],
-    scripts: [{ src: "https://telegram.org/js/telegram-web-app.js" }],
+    scripts: [
+      { src: "https://telegram.org/js/telegram-web-app.js" },
+      { src: "https://libtl.com/sdk.js", "data-zone": "12288175", "data-sdk": "show_12288175", async: true } as any,
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -102,8 +106,31 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster position="top-center" theme="dark" />
+      <TelegramChrome />
       <Outlet />
       <BottomNav />
     </QueryClientProvider>
   );
+}
+
+/** Full-screen Telegram app: Telegram's own back button replaces in-app back links. */
+function TelegramChrome() {
+  const { pathname } = useLocation();
+  const router = useRouter();
+  useEffect(() => {
+    const tg = (window as any).Telegram?.WebApp;
+    tg?.ready?.();
+    tg?.expand?.();
+    tg?.disableVerticalSwipes?.();
+    try { if (tg?.isVersionAtLeast?.("8.0")) tg.requestFullscreen?.(); } catch { /* older client */ }
+  }, []);
+  useEffect(() => {
+    const bb = (window as any).Telegram?.WebApp?.BackButton;
+    if (!bb) return;
+    const back = () => (window.history.length > 1 ? router.history.back() : router.navigate({ to: "/" }));
+    if (pathname === "/") bb.hide(); else bb.show();
+    bb.onClick(back);
+    return () => bb.offClick(back);
+  }, [pathname, router]);
+  return null;
 }

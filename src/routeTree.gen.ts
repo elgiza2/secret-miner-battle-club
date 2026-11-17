@@ -10,23 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DailyRouteImport } from './routes/daily'
 import { Route as GamesRouteImport } from './routes/games'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as SeasonRouteImport } from './routes/season'
-import { Route as ShareRouteImport } from './routes/share'
 import { Route as SpinRouteImport } from './routes/spin'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as ApiPublicZroBotRouteImport } from './routes/api/public/zro/bot'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DailyRoute = DailyRouteImport.update({
-  id: '/daily',
-  path: '/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesRoute = GamesRouteImport.update({
@@ -44,11 +38,6 @@ const SeasonRoute = SeasonRouteImport.update({
   path: '/season',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShareRoute = ShareRouteImport.update({
-  id: '/share',
-  path: '/share',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SpinRoute = SpinRouteImport.update({
   id: '/spin',
   path: '/spin',
@@ -64,87 +53,85 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicZroBotRoute = ApiPublicZroBotRouteImport.update({
+  id: '/api/public/zro/bot',
+  path: '/api/public/zro/bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/daily': typeof DailyRoute
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
-  '/share': typeof ShareRoute
   '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
+  '/api/public/zro/bot': typeof ApiPublicZroBotRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/daily': typeof DailyRoute
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
-  '/share': typeof ShareRoute
   '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
+  '/api/public/zro/bot': typeof ApiPublicZroBotRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/daily': typeof DailyRoute
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
-  '/share': typeof ShareRoute
   '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
+  '/api/public/zro/bot': typeof ApiPublicZroBotRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/daily'
     | '/games'
     | '/rewards'
     | '/season'
-    | '/share'
     | '/spin'
     | '/store'
     | '/wallet'
+    | '/api/public/zro/bot'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/daily'
     | '/games'
     | '/rewards'
     | '/season'
-    | '/share'
     | '/spin'
     | '/store'
     | '/wallet'
+    | '/api/public/zro/bot'
   id:
     | '__root__'
     | '/'
-    | '/daily'
     | '/games'
     | '/rewards'
     | '/season'
-    | '/share'
     | '/spin'
     | '/store'
     | '/wallet'
+    | '/api/public/zro/bot'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DailyRoute: typeof DailyRoute
   GamesRoute: typeof GamesRoute
   RewardsRoute: typeof RewardsRoute
   SeasonRoute: typeof SeasonRoute
-  ShareRoute: typeof ShareRoute
   SpinRoute: typeof SpinRoute
   StoreRoute: typeof StoreRoute
   WalletRoute: typeof WalletRoute
+  ApiPublicZroBotRoute: typeof ApiPublicZroBotRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -154,13 +141,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/daily': {
-      id: '/daily'
-      path: '/daily'
-      fullPath: '/daily'
-      preLoaderRoute: typeof DailyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games': {
@@ -184,13 +164,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeasonRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/share': {
-      id: '/share'
-      path: '/share'
-      fullPath: '/share'
-      preLoaderRoute: typeof ShareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/spin': {
       id: '/spin'
       path: '/spin'
@@ -212,19 +185,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/zro/bot': {
+      id: '/api/public/zro/bot'
+      path: '/api/public/zro/bot'
+      fullPath: '/api/public/zro/bot'
+      preLoaderRoute: typeof ApiPublicZroBotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DailyRoute: DailyRoute,
   GamesRoute: GamesRoute,
   RewardsRoute: RewardsRoute,
   SeasonRoute: SeasonRoute,
-  ShareRoute: ShareRoute,
   SpinRoute: SpinRoute,
   StoreRoute: StoreRoute,
   WalletRoute: WalletRoute,
+  ApiPublicZroBotRoute: ApiPublicZroBotRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

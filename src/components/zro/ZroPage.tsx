@@ -1,23 +1,25 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
 import ProfileHeader from "./ProfileHeader";
-import { useZroGame } from "@/hooks/use-zro-game";
+import { useZro } from "@/hooks/use-zro";
 import { getTelegramUserSync, type TelegramUserInfo } from "@/lib/telegram-user";
+import { APP_NAME } from "@/lib/zro-brand";
 
-/** Shell for every page except the board: profile row on top, scrolling content, room for the bottom bar. */
-export default function ZroPage({ title, back, children }: { title?: string; back?: boolean; children: ReactNode }) {
+/** The ZRO wordmark that sits at the top of every page. */
+export function Wordmark() {
+  return (
+    <h1 dir="ltr" className="text-center font-display text-[18px] font-extrabold uppercase leading-none tracking-[0.08em]">{APP_NAME}</h1>
+  );
+}
+
+/** Shell for every page except the board: ZRO on top, profile row, scrolling content. */
+export default function ZroPage({ children, profile = true }: { children: ReactNode; profile?: boolean }) {
   const [user, setUser] = useState<TelegramUserInfo | null>(null);
   useEffect(() => setUser(getTelegramUserSync()), []);
-  const game = useZroGame(user?.id ?? null);
+  const { me } = useZro();
   return (
     <div className="pt-tg-safe mx-auto flex min-h-screen max-w-[430px] flex-col gap-4 px-4 pb-32">
-      {back ? (
-        <Link to="/" className="pressable flex w-fit items-center gap-1 text-sm font-semibold"><ArrowRight className="h-5 w-5" /> عودة</Link>
-      ) : (
-        <ProfileHeader user={user} energy={game.state?.energy ?? 0} zro={game.state?.zro ?? 0} />
-      )}
-      {title && <h1 className={`font-display text-2xl font-extrabold ${back ? "text-center" : ""}`}>{title}</h1>}
+      <Wordmark />
+      {profile && <ProfileHeader user={user} energy={me?.energy ?? 0} zro={me?.zro ?? 0} />}
       {children}
     </div>
   );

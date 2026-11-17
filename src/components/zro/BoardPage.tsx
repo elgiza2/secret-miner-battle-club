@@ -5,8 +5,8 @@ import Board, { type BoardHandle } from "./Board";
 import ProfileHeader from "./ProfileHeader";
 import RollControls from "./RollControls";
 import DiceOverlay from "./DiceOverlay";
-import { useZroGame } from "@/hooks/use-zro-game";
-import { useWalletVerified } from "@/hooks/use-wallet-verified";
+import { act, initData, useZro } from "@/hooks/use-zro";
+import { zroRoll } from "@/lib/zro.functions";
 import { CART, GRAM_ICON, SPIN_ICON } from "@/lib/zro-assets";
 import { VERIFY_FEE_GRAM } from "@/lib/zro-board";
 import { getTelegramUserSync, type TelegramUserInfo } from "@/lib/telegram-user";
@@ -18,7 +18,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 function rewardText(r: Reward): string | null {
   if (r.zro) return `+${r.zro} ZRO`;
   if (r.gram) return `+${r.gram} GRAM`;
-  if (r.prv) return `+${r.prv} PRV`;
+  if (r.spins) return `+${r.spins} لفة`;
   if (r.energy) return `+${r.energy} طاقة`;
   if (r.xp) return `+${r.xp} XP`;
   return null;
@@ -31,16 +31,11 @@ export default function BoardPage() {
   const [busy, setBusy] = useState(false);
   const [popup, setPopup] = useState<{ text: string; key: number } | null>(null);
   const boardRef = useRef<BoardHandle>(null);
-  const game = useZroGame(user?.id ?? null);
-  const verified = useWalletVerified();
+  const game = useZro();
+  const verified = game.me ? game.me.verified : null;
   const navigate = useNavigate();
 
   useEffect(() => {
-    const tg = (window as { Telegram?: { WebApp?: { ready?: () => void; expand?: () => void; disableVerticalSwipes?: () => void } } }).Telegram?.WebApp;
-    tg?.ready?.();
-    tg?.expand?.();
-    // Dragging on the board must not pull the mini app down.
-    tg?.disableVerticalSwipes?.();
     setUser(getTelegramUserSync());
     const measure = () => setWidth(Math.min(window.innerWidth, 430));
     measure();
@@ -50,25 +45,27 @@ export default function BoardPage() {
 
   const onRoll = async () => {
     if (busy) return;
-    const res = game.roll();
-    if (!res) {
+    if (!game.canRoll) {
       // Out of energy: send them to the store to refill.
       navigate({ to: "/store" });
       return;
     }
     setBusy(true);
+    const res = await act(() => zroRoll({ data: { initData: initData() } }));
+    if (!res) { setBusy(false); return; }
     setDice({ target: res.die, reveal: false });
     await wait(1250);
     setDice({ target: res.die, reveal: true });
     await wait(650);
     setDice(null);
     await boardRef.current?.hop(res.from, res.landed);
+    game.set(res.me);
     const text = rewardText(res.reward);
     if (text) setPopup({ text, key: Date.now() });
     setBusy(false);
   };
 
-  const s = game.state;
+  const s = game.me;
 
   return (
     <div className="relative min-h-screen overflow-hidden">

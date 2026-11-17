@@ -5154,6 +5154,35 @@ export type Database = {
           },
         ]
       }
+      zro_season_claims: {
+        Row: {
+          created_at: string
+          tg_id: number
+          tier: number
+          track: string
+        }
+        Insert: {
+          created_at?: string
+          tg_id: number
+          tier: number
+          track: string
+        }
+        Update: {
+          created_at?: string
+          tg_id?: number
+          tier?: number
+          track?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zro_season_claims_tg_id_fkey"
+            columns: ["tg_id"]
+            isOneToOne: false
+            referencedRelation: "zro_users"
+            referencedColumns: ["tg_id"]
+          },
+        ]
+      }
       zro_task_claims: {
         Row: {
           created_at: string
@@ -5227,6 +5256,7 @@ export type Database = {
           energy: number
           first_name: string | null
           gram: number
+          last_ad_at: string | null
           last_daily: string | null
           last_share: string | null
           photo_url: string | null
@@ -5249,6 +5279,7 @@ export type Database = {
           energy?: number
           first_name?: string | null
           gram?: number
+          last_ad_at?: string | null
           last_daily?: string | null
           last_share?: string | null
           photo_url?: string | null
@@ -5271,6 +5302,7 @@ export type Database = {
           energy?: number
           first_name?: string | null
           gram?: number
+          last_ad_at?: string | null
           last_daily?: string | null
           last_share?: string | null
           photo_url?: string | null
