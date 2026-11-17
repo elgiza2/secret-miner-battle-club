@@ -5,15 +5,20 @@ import ZroPage from "@/components/zro/ZroPage";
 import PremiumSheet from "@/components/zro/PremiumSheet";
 import { ENERGY_ICON, GRAM_ICON, PREMIUM_PASS, ZRO_ICON } from "@/lib/zro-assets";
 import { SEASON_PASS_GRAM } from "@/lib/zro-board";
+import { SEASON_TIER_COUNT } from "@/lib/zro-rewards";
 
 // Sample tiers for the design stage; real progress comes later from the database.
-const TIERS = [
-  { free: { icon: ZRO_ICON, amount: "0.5" }, premium: { icon: ZRO_ICON, amount: "2" }, claimed: true },
-  { free: { icon: ZRO_ICON, amount: "0.5" }, premium: { icon: ZRO_ICON, amount: "2" }, claimed: true },
-  { free: { icon: ENERGY_ICON, amount: "50" }, premium: { icon: ENERGY_ICON, amount: "100" }, claimed: false },
-  { free: { icon: ZRO_ICON, amount: "1" }, premium: { icon: GRAM_ICON, amount: "0.2" }, claimed: false },
-  { free: { icon: ENERGY_ICON, amount: "75" }, premium: { icon: ZRO_ICON, amount: "5" }, claimed: false },
+const FREE_CYCLE = [
+  { icon: ZRO_ICON, amount: "0.5" }, { icon: ENERGY_ICON, amount: "50" }, { icon: ZRO_ICON, amount: "1" }, { icon: ENERGY_ICON, amount: "75" },
 ];
+const PREMIUM_CYCLE = [
+  { icon: ZRO_ICON, amount: "2" }, { icon: ENERGY_ICON, amount: "100" }, { icon: GRAM_ICON, amount: "0.2" }, { icon: ZRO_ICON, amount: "5" },
+];
+const TIERS = Array.from({ length: SEASON_TIER_COUNT }, (_, i) => ({
+  free: FREE_CYCLE[i % FREE_CYCLE.length],
+  premium: PREMIUM_CYCLE[i % PREMIUM_CYCLE.length],
+  claimed: i < 2,
+}));
 
 export const Route = createFileRoute("/season")({
   component: SeasonPage,
@@ -52,7 +57,7 @@ function SeasonPage() {
       <div className="surface flex flex-col gap-2 rounded-[24px] p-4">
         <div className="flex items-center justify-between">
           <span dir="ltr" className="font-display text-xl font-extrabold">Season Pass</span>
-          <span className="text-xs text-muted-foreground">مكافآت الموسم 2 / 20</span>
+          <span className="text-xs text-muted-foreground">مكافآت الموسم 2 / {SEASON_TIER_COUNT}</span>
         </div>
         <div className="h-2.5 overflow-hidden rounded-full bg-foreground/10">
           <div className="btn-premium h-full w-[62%] rounded-full" />

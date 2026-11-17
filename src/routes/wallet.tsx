@@ -9,6 +9,7 @@ import { getTelegramUserSync } from "@/lib/telegram-user";
 import { GRAM_ICON, PRV_ICON, WALLET_ICON, ZRO_ICON } from "@/lib/zro-assets";
 import { VERIFY_FEE_GRAM } from "@/lib/zro-board";
 import { formatZro } from "@/lib/zro-format";
+import { shortAddress, useTonWallet } from "@/hooks/use-ton-wallet";
 
 export const Route = createFileRoute("/wallet")({
   component: WalletPage,
@@ -34,10 +35,19 @@ function WalletPage() {
     { name: "GRAM", icon: GRAM_ICON, value: s?.gram ?? 0 },
     { name: "PRV", icon: PRV_ICON, value: s?.prv ?? 0 },
   ];
+  const wallet = useTonWallet();
   const soon = () => toast("الدفع هيتفعل لما نربط المحفظة");
 
   return (
     <ZroPage title="المحفظة">
+      <div className="grid grid-cols-2 gap-3">
+        <button type="button" onClick={soon} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
+          <ArrowDownToLine className="h-5 w-5" /> إيداع
+        </button>
+        <button type="button" onClick={soon} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
+          <ArrowUpFromLine className="h-5 w-5" /> سحب
+        </button>
+      </div>
       {verified === false && (
         <div className="bg-premium flex flex-col gap-3 rounded-[26px] p-4">
           <div className="flex items-center gap-3">
@@ -57,10 +67,10 @@ function WalletPage() {
         <img src={WALLET_ICON} alt="" className="h-14 w-14 object-contain" />
         <div className="min-w-0 flex-1">
           <p className="text-xs text-muted-foreground">محفظة GRAM</p>
-          <p className="font-display text-base font-bold">غير متصلة</p>
+          <p dir="ltr" className="truncate text-right font-display text-base font-bold">{wallet.address ? shortAddress(wallet.address) : "غير متصلة"}</p>
         </div>
-        <button type="button" onClick={soon} className="btn-glossy btn-invite pressable rounded-full px-4 py-2 font-display text-sm font-bold">
-          ربط المحفظة
+        <button type="button" onClick={wallet.address ? wallet.disconnect : wallet.connect} className="btn-glossy btn-invite pressable rounded-full px-4 py-2 font-display text-sm font-bold">
+          {wallet.address ? "فصل" : "ربط المحفظة"}
         </button>
       </div>
 
@@ -76,14 +86,6 @@ function WalletPage() {
         </div>
       </Section>
 
-      <div className="grid grid-cols-2 gap-3">
-        <button type="button" onClick={soon} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
-          <ArrowDownToLine className="h-5 w-5" /> إيداع
-        </button>
-        <button type="button" onClick={soon} className="surface pressable flex h-14 items-center justify-center gap-2 rounded-[20px] font-display font-bold">
-          <ArrowUpFromLine className="h-5 w-5" /> سحب
-        </button>
-      </div>
     </ZroPage>
   );
 }

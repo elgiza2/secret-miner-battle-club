@@ -1,4 +1,4 @@
-import { Copy, Info } from "lucide-react";
+import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { ENERGY_ICON, GIFT } from "@/lib/zro-assets";
 
@@ -30,9 +30,6 @@ export default function InviteCard({ link }: { link: string }) {
       <button type="button" className="btn-glossy btn-invite pressable h-11 rounded-full font-display text-base font-bold">
         ارسل هدية دعوة
       </button>
-      <p className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
-        <Info className="h-3.5 w-3.5" /> الحد اليومي هو 10 أصدقاء مدعوين.
-      </p>
       <ul className="flex flex-col divide-y divide-border">
         {FRIENDS.map((n) => (
           <li key={n} className="flex items-center justify-between py-2.5">

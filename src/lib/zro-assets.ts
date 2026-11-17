@@ -12,6 +12,7 @@ import season from "@/assets/zro/season.png";
 import spinWheel from "@/assets/zro/spin.png";
 import wallet from "@/assets/zro/wallet.png";
 import premiumPass from "@/assets/zro/premium-pass.png";
+import luckyDraw from "@/assets/zro/lucky-draw.png";
 import xp from "@/assets/zro/xp.png";
 import zroCoin from "@/assets/zro/zro-coin.png";
 import type { TileKind } from "@/lib/zro-board";
@@ -31,6 +32,7 @@ export const GIFT = gift;
 export const SEASON_ICON = season;
 export const GAMEPAD = gamepad;
 export const CART = cart;
+export const LUCKY_DRAW = luckyDraw;
 
 /** Icon standing on each tile type. `lift` nudges the icon's base relative to the tile centre. */
 export const TILE_ICONS: Record<TileKind, { src: string; alt: string; size: number; lift: number } | null> = {

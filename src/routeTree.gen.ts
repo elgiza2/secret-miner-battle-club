@@ -10,15 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DailyRouteImport } from './routes/daily'
 import { Route as GamesRouteImport } from './routes/games'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as SeasonRouteImport } from './routes/season'
+import { Route as ShareRouteImport } from './routes/share'
+import { Route as SpinRouteImport } from './routes/spin'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as WalletRouteImport } from './routes/wallet'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyRoute = DailyRouteImport.update({
+  id: '/daily',
+  path: '/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesRoute = GamesRouteImport.update({
@@ -36,6 +44,16 @@ const SeasonRoute = SeasonRouteImport.update({
   path: '/season',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShareRoute = ShareRouteImport.update({
+  id: '/share',
+  path: '/share',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpinRoute = SpinRouteImport.update({
+  id: '/spin',
+  path: '/spin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
   path: '/store',
@@ -49,43 +67,82 @@ const WalletRoute = WalletRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/daily': typeof DailyRoute
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
+  '/share': typeof ShareRoute
+  '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/daily': typeof DailyRoute
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
+  '/share': typeof ShareRoute
+  '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/daily': typeof DailyRoute
   '/games': typeof GamesRoute
   '/rewards': typeof RewardsRoute
   '/season': typeof SeasonRoute
+  '/share': typeof ShareRoute
+  '/spin': typeof SpinRoute
   '/store': typeof StoreRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/games' | '/rewards' | '/season' | '/store' | '/wallet'
+  fullPaths:
+    | '/'
+    | '/daily'
+    | '/games'
+    | '/rewards'
+    | '/season'
+    | '/share'
+    | '/spin'
+    | '/store'
+    | '/wallet'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/games' | '/rewards' | '/season' | '/store' | '/wallet'
+  to:
+    | '/'
+    | '/daily'
+    | '/games'
+    | '/rewards'
+    | '/season'
+    | '/share'
+    | '/spin'
+    | '/store'
+    | '/wallet'
   id:
-    '__root__' | '/' | '/games' | '/rewards' | '/season' | '/store' | '/wallet'
+    | '__root__'
+    | '/'
+    | '/daily'
+    | '/games'
+    | '/rewards'
+    | '/season'
+    | '/share'
+    | '/spin'
+    | '/store'
+    | '/wallet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DailyRoute: typeof DailyRoute
   GamesRoute: typeof GamesRoute
   RewardsRoute: typeof RewardsRoute
   SeasonRoute: typeof SeasonRoute
+  ShareRoute: typeof ShareRoute
+  SpinRoute: typeof SpinRoute
   StoreRoute: typeof StoreRoute
   WalletRoute: typeof WalletRoute
 }
@@ -97,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily': {
+      id: '/daily'
+      path: '/daily'
+      fullPath: '/daily'
+      preLoaderRoute: typeof DailyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games': {
@@ -120,6 +184,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeasonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/share': {
+      id: '/share'
+      path: '/share'
+      fullPath: '/share'
+      preLoaderRoute: typeof ShareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/spin': {
+      id: '/spin'
+      path: '/spin'
+      fullPath: '/spin'
+      preLoaderRoute: typeof SpinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/store': {
       id: '/store'
       path: '/store'
@@ -139,9 +217,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DailyRoute: DailyRoute,
   GamesRoute: GamesRoute,
   RewardsRoute: RewardsRoute,
   SeasonRoute: SeasonRoute,
+  ShareRoute: ShareRoute,
+  SpinRoute: SpinRoute,
   StoreRoute: StoreRoute,
   WalletRoute: WalletRoute,
 }

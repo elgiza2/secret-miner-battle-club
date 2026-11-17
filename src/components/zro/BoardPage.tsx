@@ -7,7 +7,7 @@ import RollControls from "./RollControls";
 import DiceOverlay from "./DiceOverlay";
 import { useZroGame } from "@/hooks/use-zro-game";
 import { useWalletVerified } from "@/hooks/use-wallet-verified";
-import { CART, GRAM_ICON } from "@/lib/zro-assets";
+import { CART, GRAM_ICON, SPIN_ICON } from "@/lib/zro-assets";
 import { VERIFY_FEE_GRAM } from "@/lib/zro-board";
 import { getTelegramUserSync, type TelegramUserInfo } from "@/lib/telegram-user";
 import { APP_NAME } from "@/lib/zro-brand";
@@ -87,9 +87,17 @@ export default function BoardPage() {
             <div className="min-w-0 flex-1">
               <ProfileHeader user={user} energy={s?.energy ?? 0} zro={s?.zro ?? 0} />
             </div>
-            <Link to="/store" aria-label="المتجر" className="surface-strong pressable grid h-10 w-10 shrink-0 place-items-center rounded-full">
-              <img src={CART} alt="" className="h-7 w-7 object-contain" />
-            </Link>
+          </div>
+          <div className="flex gap-2">
+            {[
+              { to: "/store" as const, label: "المتجر", icon: CART },
+              { to: "/spin" as const, label: "عجلة", icon: SPIN_ICON },
+            ].map((q) => (
+              <Link key={q.to} to={q.to} className="surface-strong sheen-corner pressable flex h-[62px] w-[62px] flex-col items-center justify-center gap-0.5 rounded-[18px]">
+                <img src={q.icon} alt="" className="h-8 w-8 object-contain" />
+                <span className="font-display text-[11px] font-bold">{q.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </header>
